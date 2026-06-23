@@ -17,6 +17,7 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script>Babel.registerPreset('react-classic',{presets:[[Babel.availablePresets['react'],{runtime:'classic'}]]});</script>
 <style>
 :root{
   --bg:#15110c; --bg2:#1c1710; --panel:#221b13; --panel2:#2a2118;
@@ -166,7 +167,7 @@ a.lnk{color:var(--gold2);cursor:pointer;text-decoration:underline;text-decoratio
 </head>
 <body>
 <div id="root"></div>
-<script type="text/babel" data-presets="react">
+<script type="text/babel" data-presets="react-classic">
 const {useState,useEffect,useMemo,useRef,useCallback} = React;
 
 /* ════════════ STORE ════════════ */
