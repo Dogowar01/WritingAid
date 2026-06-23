@@ -1,0 +1,52 @@
+SCRIPTORIUM — Install as a Desktop App
+=======================================
+
+This folder is a complete installable web app (PWA). Once it's online,
+you can install it to your PC so it runs in its own window with a
+taskbar icon — no browser tabs, works offline.
+
+-------------------------------------------------
+STEP 1 — Put these files online (GitHub Pages)
+-------------------------------------------------
+Upload the ENTIRE contents of this folder to your GitHub Pages repo,
+keeping the filenames exactly as they are:
+
+  index.html
+  manifest.webmanifest
+  sw.js
+  icon-192.png
+  icon-512.png
+  icon-maskable-512.png
+  favicon.png
+
+Commit, and wait ~1 minute for Pages to publish. Open your Pages URL
+(e.g. https://YOURNAME.github.io/scriptorium/) in Chrome or Edge.
+
+-------------------------------------------------
+STEP 2 — Install it to your desktop
+-------------------------------------------------
+In Chrome or Edge, with the app open:
+  • Look for the INSTALL icon in the address bar
+    (a small monitor/⊕ icon on the right side), OR
+  • Click the ⋮ menu  →  "Install Scriptorium…" / "Apps > Install this site as an app"
+
+Click Install. Scriptorium now appears:
+  • In your Start Menu / desktop with the gold medallion icon
+  • Runs in its own window (no browser chrome)
+  • Pin it to your taskbar for one-click access
+
+-------------------------------------------------
+STEP 3 — Add your API key (optional)
+-------------------------------------------------
+Open the app → 🔑 API & Backup → paste your Anthropic key.
+This powers the AI Companion and Name Forge. Stored only on your device.
+
+-------------------------------------------------
+NOTES
+-------------------------------------------------
+• All your work is saved locally in the app. Use Settings → Export
+  backup regularly to save a .json copy you can re-import anytime.
+• The app works fully offline after the first load. (The AI features
+  need internet, since they call Anthropic.)
+• Want a true standalone .exe later (no browser involved)? The same
+  files wrap straight into Tauri — just ask.
