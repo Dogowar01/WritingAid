@@ -1,5 +1,5 @@
 // Scriptorium service worker — offline-first for the app shell.
-const CACHE = 'scriptorium-v1';
+const CACHE = 'scriptorium-v2';
 const ASSETS = [
   './',
   './index.html',
