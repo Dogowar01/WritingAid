@@ -1,0 +1,2801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0b10" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Scriptorium" />
+<title>Scriptorium — Writing Studio</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/png" href="favicon.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+<script>Babel.registerPreset('react-classic',{presets:[[Babel.availablePresets['react'],{runtime:'classic'}]]});</script>
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+<style>
+:root{
+  --void:#0a0b10; --deep:#0e1018; --raise:#12141e; --raise2:#171a26;
+  --hair:rgba(220,200,150,.10); --hair2:rgba(220,200,150,.18);
+  --txt:#e9e2d0; --dim:#a59c86; --faint:#6e675a;
+  --gold:#c9a35c; --gold2:#eed598; --goldRGB:201,163,92; --ember:#cf6b4e;
+  --char:#e09a62; --loc:#7cc6a0; --fac:#b88bd6; --item:#e3c884; --lore:#7fa6e0; --event:#e0705c;
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --disp:'Fraunces',serif; --body:'Spectral',Georgia,serif; --mono:'JetBrains Mono',monospace;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--void);
+  color:var(--txt); font-family:var(--body); font-size:15.5px; line-height:1.55;
+  overflow:hidden; font-weight:300;
+}
+#root{height:100vh;height:100dvh}
+::selection{background:rgba(var(--goldRGB),.28)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#232632;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#2e3242}
+b,strong{font-weight:500;color:var(--txt)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── shell ── */
+.app{display:flex;height:100%}
+.rail{width:218px;min-width:218px;display:flex;flex-direction:column;border-right:1px solid var(--hair);background:linear-gradient(180deg,var(--deep),var(--void))}
+.brand{padding:22px 20px 16px}
+.brand h1{font-family:var(--disp);font-weight:500;font-size:25px;letter-spacing:.4px;color:var(--gold2);line-height:1}
+.brand h1 .star{color:var(--gold);font-size:15px;vertical-align:.18em;margin-right:7px}
+.brand .sub{font-family:var(--mono);font-size:8.5px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-top:7px}
+.proj{padding:0 14px 14px;border-bottom:1px solid var(--hair)}
+.proj label{font-family:var(--mono);font-size:8.5px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;display:block;margin:0 6px 6px}
+.proj-row{display:flex;gap:6px}
+select,input,textarea{font-family:var(--body);font-weight:300;color:var(--txt);background:var(--raise);border:1px solid var(--hair);border-radius:9px;padding:8px 11px;font-size:14px;width:100%;outline:none;transition:border-color .15s}
+select:focus,input:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 12px rgba(var(--goldRGB),.18)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--faint) 50%),linear-gradient(135deg,var(--faint) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+textarea{resize:vertical;line-height:1.6}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+.nav{flex:1;overflow-y:auto;padding:10px 10px 24px}
+.nsec{font-family:var(--mono);font-size:8.5px;letter-spacing:2.2px;color:var(--faint);text-transform:uppercase;padding:16px 12px 6px}
+.nitem{display:flex;align-items:center;gap:11px;padding:8px 12px;border-radius:9px;cursor:pointer;color:var(--dim);font-size:14px;transition:.13s;position:relative}
+.nitem:hover{color:var(--txt);background:rgba(255,255,255,.025)}
+.nitem.on{color:var(--gold2);background:rgba(var(--goldRGB),.09);box-shadow:inset 0 0 16px rgba(var(--goldRGB),.1),0 0 14px rgba(var(--goldRGB),.14)}
+.nitem.on::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--gold);box-shadow:0 0 8px rgba(var(--goldRGB),.8)}
+.nitem .g{width:17px;text-align:center;font-size:13px;opacity:.85}
+.nitem .ct{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{padding:18px 30px 14px;display:flex;align-items:baseline;gap:14px}
+.top h2{font-family:var(--disp);font-weight:500;font-size:26px;color:var(--txt);letter-spacing:.3px}
+.top .tag{font-size:13px;color:var(--faint);font-style:italic}
+.top .sp{flex:1}
+.content{flex:1;overflow-y:auto;padding:6px 30px 40px}
+.wrap{max-width:1060px;margin:0 auto}
+
+/* ── controls ── */
+.btn{font-family:var(--body);font-weight:400;font-size:13.5px;padding:8px 15px;border-radius:9px;border:1px solid var(--hair2);
+  background:linear-gradient(180deg,var(--raise2),var(--raise));color:var(--dim);cursor:pointer;transition:.16s;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.3),0 2px 6px rgba(0,0,0,.4),0 0 10px rgba(var(--goldRGB),.10)}
+.btn:hover{color:var(--gold2);border-color:var(--gold);transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(0,0,0,.3),0 4px 12px rgba(0,0,0,.45),0 0 20px rgba(var(--goldRGB),.35)}
+.btn:active{transform:translateY(1px);box-shadow:inset 0 2px 5px rgba(0,0,0,.45)}
+.btn.gold{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 72%,#fff),var(--gold) 45%,color-mix(in srgb,var(--gold) 74%,#000));color:#171205;border-color:color-mix(in srgb,var(--gold) 80%,#fff);font-weight:500;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -2px 4px rgba(0,0,0,.35),0 3px 10px rgba(0,0,0,.5),0 0 22px rgba(var(--goldRGB),.45)}
+.btn.gold:hover{filter:brightness(1.07);transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 4px rgba(0,0,0,.3),0 5px 14px rgba(0,0,0,.55),0 0 34px rgba(var(--goldRGB),.65)}
+.btn.gold:active{transform:translateY(1px);filter:brightness(.96);box-shadow:inset 0 2px 6px rgba(80,55,15,.5),0 0 12px rgba(var(--goldRGB),.3)}
+.btn.sm{padding:5px 11px;font-size:12.5px;border-radius:8px}
+.btn.ghost{border-color:transparent;background:transparent;box-shadow:none}
+.btn.danger:hover{border-color:var(--ember);color:#e89a85;background:rgba(207,107,78,.06)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:focus-visible,.nitem:focus-visible,input:focus-visible{outline:1.5px solid var(--gold);outline-offset:2px}
+
+/* ── surfaces ── */
+.card{background:var(--raise);border:1px solid var(--hair);border-radius:var(--r);padding:18px}
+.card.hov{cursor:pointer;transition:.18s}
+.card.hov:hover{border-color:rgba(var(--goldRGB),.4);box-shadow:0 6px 18px rgba(0,0,0,.4),0 0 22px rgba(var(--goldRGB),.14);transform:translateY(-2px)}
+.card.hov:hover{border-color:rgba(var(--goldRGB),.45);transform:translateY(-2px);box-shadow:var(--shadow)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.field{margin-bottom:14px}
+.field label{font-family:var(--mono);font-size:9px;letter-spacing:1.6px;color:var(--faint);text-transform:uppercase;display:block;margin-bottom:6px}
+.muted{color:var(--dim)} .hint{font-size:13px;color:var(--faint);font-style:italic}
+.h3{font-family:var(--disp);font-weight:500;font-size:19px;color:var(--txt)}
+.rule{height:1px;background:var(--hair);margin:24px 0;border:0}
+.empty{text-align:center;padding:64px 20px;color:var(--faint)}
+.empty .glyph{font-size:30px;opacity:.45;margin-bottom:14px;color:var(--gold)}
+.empty .act{margin-top:16px}
+
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid}
+.tag{display:inline-block;font-size:11.5px;padding:2px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--hair);color:var(--dim);margin:2px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid var(--hair);cursor:pointer;font-size:13px;transition:.12s;margin:3px 5px 3px 0;color:var(--dim)}
+.pill:hover{border-color:var(--gold);color:var(--txt)}
+
+/* ── modal ── */
+.scrim{position:fixed;inset:0;background:rgba(5,6,10,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;animation:fade .16s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--deep);border:1px solid var(--hair2);border-radius:16px;width:100%;max-width:620px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow);animation:pop .2s}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.modal.wide{max-width:840px}
+.mhead{padding:18px 22px;border-bottom:1px solid var(--hair);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--deep);z-index:2}
+.mhead h3{font-family:var(--disp);font-weight:500;font-size:22px;color:var(--txt);flex:1}
+.mbody{padding:22px}
+.mfoot{padding:14px 22px;border-top:1px solid var(--hair);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--deep)}
+.x{cursor:pointer;color:var(--faint);font-size:21px;line-height:1;padding:4px 7px;border-radius:7px}
+.x:hover{color:var(--txt);background:rgba(255,255,255,.05)}
+
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--raise2);border:1px solid rgba(var(--goldRGB),.5);color:var(--gold2);padding:11px 22px;border-radius:11px;font-size:13.5px;z-index:300;box-shadow:var(--shadow);animation:rise .22s}
+@keyframes rise{from{transform:translate(-50%,14px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* ── widgets ── */
+.stat{padding:16px 18px;border:1px solid var(--hair);border-radius:var(--r);background:linear-gradient(180deg,var(--raise),transparent)}
+.stat .n{font-family:var(--disp);font-weight:500;font-size:30px;color:var(--gold2);line-height:1}
+.stat .l{font-family:var(--mono);font-size:8.5px;letter-spacing:1.6px;color:var(--faint);text-transform:uppercase;margin-top:7px}
+.beat{background:rgba(255,255,255,.025);border:1px solid var(--hair);border-left:2px solid var(--gold);border-radius:9px;padding:10px 13px;margin-bottom:9px}
+.cmsg{display:flex;margin-bottom:14px}
+.cmsg.u{justify-content:flex-end}
+.bub{max-width:78%;padding:12px 16px;border-radius:14px;font-size:14.5px;line-height:1.6;white-space:pre-wrap}
+.cmsg.u .bub{background:rgba(var(--goldRGB),.10);border:1px solid rgba(var(--goldRGB),.22)}
+.cmsg.a .bub{background:var(--raise);border:1px solid var(--hair)}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 2px;animation:bl 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,60%,100%{opacity:.2}30%{opacity:1}}
+
+/* ── galaxy ── */
+.gal-wrap{position:relative;height:calc(100vh - 118px);min-height:440px;border:1px solid var(--hair);border-radius:16px;overflow:hidden;background:radial-gradient(1200px 700px at 60% 35%, #10131f 0%, #0a0b10 60%)}
+.gal-wrap canvas{display:block;width:100%;height:100%;cursor:grab}
+.hud{position:absolute;display:flex;gap:7px;align-items:center;z-index:5}
+.hud.tl{top:14px;left:14px}
+.hud.tr{top:14px;right:14px}
+.hud.bl{bottom:14px;left:14px;flex-wrap:wrap;max-width:70%}
+.hud .glass,.hbtn,.hsearch{background:rgba(12,14,22,.72);backdrop-filter:blur(8px);border:1px solid var(--hair2);border-radius:10px}
+.hbtn{padding:7px 12px;font-size:12.5px;color:var(--dim);cursor:pointer;transition:.13s;font-family:var(--body)}
+.hbtn:hover{color:var(--txt);border-color:var(--gold)}
+.hbtn.on{color:var(--gold2);border-color:var(--gold);background:rgba(var(--goldRGB),.12)}
+.hsearch{display:flex;align-items:center;padding:0 4px 0 12px}
+.hsearch input{background:transparent;border:none;width:150px;padding:7px 4px;font-size:13px}
+.lchip{font-family:var(--mono);font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:4px 11px;border-radius:16px;cursor:pointer;border:1px solid;background:rgba(12,14,22,.72);backdrop-filter:blur(8px);transition:.13s}
+.inspector{position:absolute;top:0;right:0;bottom:0;width:308px;background:rgba(11,13,20,.92);backdrop-filter:blur(14px);border-left:1px solid var(--hair2);z-index:8;overflow-y:auto;animation:slide .2s}
+@keyframes slide{from{transform:translateX(20px);opacity:0}to{transform:none;opacity:1}}
+.gal-note{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:6;font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;color:var(--gold2);background:rgba(12,14,22,.8);border:1px solid rgba(var(--goldRGB),.45);border-radius:9px;padding:7px 14px;backdrop-filter:blur(8px)}
+.epop{position:absolute;z-index:9;display:flex;gap:6px;align-items:center;background:rgba(12,14,22,.9);backdrop-filter:blur(10px);border:1px solid rgba(var(--goldRGB),.5);border-radius:11px;padding:7px 9px;box-shadow:var(--shadow)}
+.qadd{position:absolute;z-index:9;background:rgba(12,14,22,.92);backdrop-filter:blur(10px);border:1px solid var(--hair2);border-radius:12px;padding:6px;box-shadow:var(--shadow);min-width:160px}
+.qadd .qi{display:flex;align-items:center;gap:10px;padding:7px 11px;border-radius:8px;cursor:pointer;color:var(--dim);font-size:13.5px}
+.qadd .qi:hover{background:rgba(255,255,255,.05);color:var(--txt)}
+
+/* ── mobile ── */
+.mobnav{display:none}
+@media(max-width:840px){
+  .rail{display:none}
+  .top{padding:14px 16px 10px}
+  .content{padding:4px 14px 96px}
+  .gal-wrap{height:calc(100vh - 200px)}
+  .inspector{width:min(86vw,308px)}
+  .mobnav{display:flex;position:fixed;bottom:0;left:0;right:0;background:rgba(11,13,20,.92);backdrop-filter:blur(12px);border-top:1px solid var(--hair);z-index:60;overflow-x:auto;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+  .mobnav .mi{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 12px;color:var(--dim);font-size:9px;cursor:pointer;border-radius:9px}
+  .mobnav .mi.on{color:var(--gold2)}
+  .mobnav .mi .g{font-size:16px}
+  .g2,.g3{grid-template-columns:1fr}
+}
+
+/* ── v4: hero, manuscript, palette, nudge ── */
+.rail{position:relative;overflow:hidden}
+.rail-art{position:absolute;left:0;right:0;bottom:0;height:300px;pointer-events:none;opacity:.5;
+  -webkit-mask-image:linear-gradient(180deg,transparent,rgba(0,0,0,.85) 62%);mask-image:linear-gradient(180deg,transparent,rgba(0,0,0,.85) 62%)}
+.rail-art img{width:100%;height:100%;object-fit:cover;object-position:78% 18%;filter:saturate(.85) brightness(.8)}
+.rail .brand,.rail .proj,.rail .nav{position:relative;z-index:1}
+.hero{position:relative;height:190px;margin:18px 0 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--hair2);box-shadow:0 0 24px rgba(var(--goldRGB),.09),var(--shadow)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,16,.05),rgba(10,11,16,.82))}
+.bknudge{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:10px 26px 0;padding:9px 14px;border:1px solid var(--hair2);border-radius:10px;background:rgba(var(--goldRGB),.05);color:var(--dim);font-size:13px}
+.msgrid{display:flex;gap:18px;align-items:flex-start;padding-top:14px}
+.mslist{width:236px;min-width:236px;max-height:calc(100dvh - 150px);overflow-y:auto;padding-right:4px;position:sticky;top:0}
+.msitem{padding:8px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer;margin-bottom:3px}
+.msitem:hover{background:rgba(255,255,255,.03)}
+.msitem.on{background:rgba(var(--goldRGB),.09);border-color:var(--hair2);box-shadow:0 0 12px rgba(var(--goldRGB),.12)}
+.msitem .ttl{font-family:var(--disp);font-size:15px;font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.msitem .wc{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.msitem .bar{height:2px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:6px;overflow:hidden}
+.msitem .bar div{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:2px}
+.msmain{flex:1;min-width:0}
+.mseditor{width:100%;min-height:calc(100dvh - 310px);background:transparent;border:none;border-radius:0;padding:18px 2px;font-family:var(--body);font-weight:300;font-size:17px;line-height:1.85;color:var(--txt);resize:vertical}
+.mseditor:focus{border:none;outline:none}
+.mseditor.big{min-height:calc(100dvh - 130px);font-size:18px;resize:none}
+.msref{width:276px;min-width:276px;border:1px solid var(--hair);border-radius:var(--r);padding:16px;background:var(--deep);position:sticky;top:0;max-height:calc(100dvh - 150px);overflow-y:auto}
+.msfocus{position:fixed;inset:0;background:var(--void);z-index:60;display:flex;justify-content:center;overflow-y:auto}
+.msfocus .inner{width:min(720px,92vw);padding:6vh 0 10vh}
+.chip.sprint{color:var(--gold2);border-color:var(--gold);font-family:var(--mono);font-size:11px}
+.palette{width:min(620px,94vw);background:var(--raise);border:1px solid var(--hair2);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.palette>input{border:none;border-bottom:1px solid var(--hair);border-radius:0;background:transparent;padding:15px 18px;font-size:16px}
+.palette>input:focus{border-color:var(--hair)}
+.plist{max-height:340px;overflow-y:auto;padding:6px}
+.pitem{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:9px;cursor:pointer}
+.pitem.on{background:rgba(var(--goldRGB),.09)}
+.pitem .g{width:18px;text-align:center;color:var(--gold);font-size:13px}
+.pitem .lbl{flex:1;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pitem .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:1px;color:var(--faint);text-transform:uppercase}
+.pfoot{display:flex;justify-content:space-between;padding:8px 14px;border-top:1px solid var(--hair);font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,10px);grid-auto-columns:10px;gap:3px;overflow-x:auto;padding-bottom:4px}
+.hcell{width:10px;height:10px;border-radius:2.5px;background:rgba(255,255,255,.035)}
+.grid.g4{display:grid;grid-template-columns:repeat(4,1fr)}
+@media(max-width:700px){.grid.g4{grid-template-columns:repeat(2,1fr)}}
+.msadd{padding:6px 10px;border:1px dashed var(--hair2);border-radius:9px;color:var(--faint);font-size:12px;cursor:pointer;text-align:center;margin:4px 0;transition:.15s}
+.msadd:hover{color:var(--gold2);border-color:var(--gold);box-shadow:0 0 10px rgba(var(--goldRGB),.15)}
+.chthumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.chthumb{aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--hair);background:rgba(255,255,255,.02)}
+.chthumb img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;transition:.15s}
+.chthumb img:hover{transform:scale(1.05)}
+.chent{padding:7px 10px;border:1px solid var(--hair);border-radius:9px;margin-bottom:6px;background:rgba(255,255,255,.015)}
+.chent .nm{font-family:var(--disp);font-weight:500;font-size:15px;cursor:pointer}
+.chent .nm:hover{color:var(--gold2)}
+.chent .ct{font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+@media(max-width:860px){.msgrid{flex-direction:column}.mslist{width:100%;min-width:0;position:static;max-height:200px}.msref{width:100%;min-width:0;position:static}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react-classic">
+const {useState,useEffect,useMemo,useRef,useCallback} = React;
+
+/* ════════ STORE (same key & shapes as v2 — your data carries over) ════════ */
+const KEY='scriptorium.v2';
+const uid=()=>Math.random().toString(36).slice(2,10);
+const now=()=>new Date().toISOString();
+
+const ENTITY_TYPES={
+  character:{label:'Character',plural:'Characters',g:'❖',color:'#e09a62',
+    fields:['role','species','status','appearance','personality','motivation','arc','abilities']},
+  location:{label:'Location',plural:'Locations',g:'◆',color:'#7cc6a0',
+    fields:['region','type','description','atmosphere','significance','inhabitants']},
+  faction:{label:'Faction',plural:'Factions',g:'⬡',color:'#b88bd6',
+    fields:['type','goals','ideology','leadership','resources','status']},
+  item:{label:'Item',plural:'Items',g:'✦',color:'#e3c884',
+    fields:['type','rarity','description','properties','origin','owner']},
+  lore:{label:'Lore',plural:'Lore & World',g:'✧',color:'#7fa6e0',
+    fields:['category','summary','rules','history']},
+  event:{label:'Event',plural:'Events',g:'◉',color:'#e0705c',
+    fields:['when','where','summary','consequence']},
+};
+const FIELD_LABELS={role:'Role',species:'Species / Race',status:'Status',appearance:'Appearance',personality:'Personality',motivation:'Motivation / Goal',arc:'Character Arc',abilities:'Abilities / Skills',region:'Region',type:'Type',description:'Description',atmosphere:'Atmosphere / Mood',significance:'Story Significance',inhabitants:'Inhabitants',goals:'Goals',ideology:'Ideology',leadership:'Leadership',resources:'Resources',rarity:'Rarity',properties:'Properties',origin:'Origin',owner:'Owner',category:'Category',summary:'Summary',rules:'Rules / Mechanics',history:'History',when:'When',where:'Where',consequence:'Consequence / Fallout'};
+
+function defProjectData(){
+  return {entities:[],plot:{acts:[]},braindump:[],log:[],foreshadow:[],screens:[],
+    board:{positions:{}},relations:{},gallery:[],manuscript:{}};
+}
+function defStore(){
+  const id=uid();
+  return {projects:[{id,name:'Untitled Work',desc:''}],cur:id,
+    data:{[id]:defProjectData()},
+    settings:{apiKey:'',model:'claude-sonnet-5',lastBackup:'',backupSnooze:''}};
+}
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);
+    Object.keys(d.data||{}).forEach(k=>{d.data[k]={...defProjectData(),...d.data[k]};});
+    d.settings={...defStore().settings,...(d.settings||{})};
+    return d;}}catch(e){console.warn(e);}
+  return defStore();
+}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){console.warn(e);}}
+
+/* ════════ IMAGE STORE (IndexedDB) ════════ */
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open('scriptorium-media',2);
+  r.onupgradeneeded=()=>{const db=r.result;
+    if(!db.objectStoreNames.contains('images'))db.createObjectStore('images',{keyPath:'id'});
+    if(!db.objectStoreNames.contains('snapshots'))db.createObjectStore('snapshots',{keyPath:'id'});};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbPut(rec){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('images','readwrite');t.objectStore('images').put(rec);t.oncomplete=()=>res(rec);t.onerror=()=>rej(t.error);});}
+async function idbGet(id){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('images','readonly');const q=t.objectStore('images').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error);});}
+async function idbDelete(id){if(!id)return;const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('images','readwrite');t.objectStore('images').delete(id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+async function idbAll(){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('images','readonly');const q=t.objectStore('images').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error);});}
+
+const imgCache=new Map();
+function useImageURL(id){
+  const [url,setUrl]=useState(()=>id&&imgCache.has(id)?imgCache.get(id):null);
+  useEffect(()=>{let on=true;
+    if(!id){setUrl(null);return;}
+    if(imgCache.has(id)){setUrl(imgCache.get(id));return;}
+    idbGet(id).then(rec=>{if(on&&rec){imgCache.set(id,rec.dataUrl);setUrl(rec.dataUrl);}}).catch(()=>{});
+    return ()=>{on=false;};
+  },[id]);
+  return url;
+}
+function loadImageEl(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+function readFileDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+async function storeImageFile(file){
+  const src=await readFileDataURL(file);
+  const img=await loadImageEl(src);
+  const max=1000;let w=img.width,h=img.height;
+  if(Math.max(w,h)>max){const s=max/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
+  const png=/png/i.test(file.type||'');
+  const dataUrl=png?c.toDataURL('image/png'):c.toDataURL('image/jpeg',0.85);
+  const rec={id:uid(),dataUrl,name:file.name||'image',addedAt:now()};
+  await idbPut(rec);imgCache.set(rec.id,dataUrl);return rec;
+}
+function imageFromPaste(e){const items=(e.clipboardData||{}).items||[];for(const it of items){if(it.type&&it.type.startsWith('image/'))return it.getAsFile();}return null;}
+
+function ImagePicker({onAdd,flash}){
+  const ref=useRef();const [busy,setBusy]=useState(false);
+  const handle=async(file)=>{if(!file)return;setBusy(true);try{const rec=await storeImageFile(file);onAdd(rec);}catch(err){flash&&flash('Could not add that image');console.warn(err);}setBusy(false);};
+  return (
+    <div onPaste={e=>{const f=imageFromPaste(e);if(f){e.preventDefault();handle(f);}}}
+      onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();handle(e.dataTransfer.files[0]);}}
+      tabIndex={0} onClick={()=>ref.current.click()}
+      style={{border:'1px dashed var(--hair2)',borderRadius:11,padding:'18px 14px',textAlign:'center',cursor:'pointer',outline:'none'}}>
+      <input ref={ref} type="file" accept="image/*" style={{display:'none'}} onChange={e=>handle(e.target.files[0])}/>
+      <div style={{fontSize:18,opacity:.5,color:'var(--gold)'}}>✦</div>
+      <div className="muted" style={{fontSize:12.5,marginTop:5}}>{busy?'Adding…':'Upload, drop a file, or paste (Ctrl+V)'}</div>
+    </div>
+  );
+}
+function EntityImageField({e,setE,flash}){
+  const url=useImageURL(e.imageId);
+  const remove=()=>{idbDelete(e.imageId);imgCache.delete(e.imageId);setE(s=>({...s,imageId:null}));};
+  return e.imageId&&url
+    ? <div style={{position:'relative',width:140}}>
+        <img src={url} alt="" style={{width:140,height:140,objectFit:'cover',borderRadius:11,border:'1px solid var(--hair2)'}}/>
+        <span className="x" style={{position:'absolute',top:4,right:4,background:'rgba(0,0,0,.55)',borderRadius:7}} onClick={remove}>×</span>
+      </div>
+    : <ImagePicker flash={flash} onAdd={rec=>setE(s=>({...s,imageId:rec.id}))}/>;
+}
+
+/* ════════ TABS ════════ */
+const TABS=[
+  {id:'dash',g:'⌂',lbl:'Dashboard',sec:'Overview'},
+  {id:'codex',g:'❖',lbl:'Codex',sec:'World'},
+  {id:'galaxy',g:'✦',lbl:'Galaxy',sec:'World'},
+  {id:'write',g:'❧',lbl:'Manuscript',sec:'Story'},
+  {id:'plot',g:'▤',lbl:'Plot',sec:'Story'},
+  {id:'threads',g:'⌇',lbl:'Threads',sec:'Story'},
+  {id:'screens',g:'▣',lbl:'System Screens',sec:'Story'},
+  {id:'capture',g:'✎',lbl:'Capture',sec:'Studio'},
+  {id:'import',g:'⇲',lbl:'Import',sec:'Studio'},
+  {id:'gallery',g:'▦',lbl:'Gallery',sec:'Studio'},
+  {id:'log',g:'∿',lbl:'Writing Log',sec:'Studio'},
+  {id:'names',g:'✺',lbl:'Name Forge',sec:'Studio'},
+  {id:'ai',g:'✧',lbl:'Companion',sec:'Companion'},
+];
+const TAGLINES={dash:'Your work at a glance',codex:'Every person, place & power',galaxy:'Your world as a living constellation',write:'Where the words go down',plot:'The shape of the journey',threads:'Seeds planted & paid',screens:'LitRPG interface design',capture:'Catch every spark',import:'Turn a manuscript into a world bible',gallery:'A moodboard for your world',log:'Words on the page',names:'Forge a fitting name',ai:'A mind to think alongside'};
+
+/* ════════ APP ════════ */
+function App(){
+  const [store,setStore]=useState(null);
+  const [tab,setTab]=useState('dash');
+  const [toast,setToast]=useState(null);
+  const [projModal,setProjModal]=useState(false);
+  const [setModal,setSetModal]=useState(false);
+  const [cmd,setCmd]=useState(false);
+  const [jump,setJumpState]=useState(null);
+  const setJump=useCallback(j=>setJumpState({...j,ts:Date.now()}),[]);
+  const clearJump=useCallback(()=>setJumpState(null),[]);
+
+  useEffect(()=>{
+    const h=e=>{
+      if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();setCmd(o=>!o);}
+    };
+    window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h);
+  },[]);
+
+  useEffect(()=>{setStore(load());},[]);
+  useEffect(()=>{
+    if(!store)return;
+    const rt=document.documentElement.style;
+    const p=store.projects.find(x=>x.id===store.cur);
+    const th=p&&p.theme&&p.themeOn!==false?p.theme:null;
+    const VARS=['--gold','--gold2','--goldRGB','--void','--deep','--raise','--raise2','--hair','--hair2','--dim','--faint'];
+    if(th){
+      const h=th.h!=null?th.h:hueFromRGB(th.rgb);
+      rt.setProperty('--gold',th.a);rt.setProperty('--gold2',th.b);rt.setProperty('--goldRGB',th.rgb);
+      if(h!=null){
+        rt.setProperty('--void',hsl2hex(h,20,8));
+        rt.setProperty('--deep',hsl2hex(h,18,10));
+        rt.setProperty('--raise',hsl2hex(h,16,13));
+        rt.setProperty('--raise2',hsl2hex(h,15,16));
+        rt.setProperty('--hair',`rgba(${th.rgb},.14)`);
+        rt.setProperty('--hair2',`rgba(${th.rgb},.26)`);
+        rt.setProperty('--dim',hsl2hex(h,14,64));
+        rt.setProperty('--faint',hsl2hex(h,10,44));
+      }
+    }
+    else VARS.forEach(v=>rt.removeProperty(v));
+  },[store]);
+  const upd=useCallback(d=>{setStore(d);save(d);},[]);
+  const flash=useCallback(m=>{setToast(m);setTimeout(()=>setToast(null),2100);},[]);
+  const setPd=useCallback(patch=>{
+    setStore(s=>{const nd={...s,data:{...s.data,[s.cur]:{...s.data[s.cur],...patch}}};save(nd);return nd;});
+  },[]);
+
+  if(!store) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontFamily:'var(--disp)',color:'var(--dim)',fontSize:20}}>Opening the Scriptorium…</div>;
+
+  const pd=store.data[store.cur];
+  const proj=store.projects.find(p=>p.id===store.cur);
+  const counts={codex:pd.entities.length,capture:pd.braindump.length,threads:pd.foreshadow.length,screens:pd.screens.length,gallery:(pd.gallery||[]).length};
+  const ctx={store,upd,pd,setPd,flash,proj,setTab,jump,setJump,clearJump};
+  const needsBackup=(()=>{
+    const s=store.settings||{};
+    const has=Object.values(store.data).some(d=>(d.entities||[]).length>0||(d.plot?.acts||[]).length>0||Object.keys(d.manuscript||{}).length>0);
+    if(!has)return false;
+    const DAY=86400000;
+    const last=s.lastBackup?Date.parse(s.lastBackup):0;
+    const snooze=s.backupSnooze?Date.parse(s.backupSnooze):0;
+    if(Date.now()-snooze<7*DAY)return false;
+    return Date.now()-last>30*DAY;
+  })();
+  const snoozeBackup=()=>upd({...store,settings:{...store.settings,backupSnooze:new Date().toISOString()}});
+  const cur=TABS.find(t=>t.id===tab);
+  let groups={};TABS.forEach(t=>{(groups[t.sec]=groups[t.sec]||[]).push(t);});
+
+  return (
+    <div className="app">
+      <aside className="rail">
+        <div className="brand">
+          <h1><span className="star">✦</span>Scriptorium</h1>
+          <div className="sub">Writing Studio</div>
+        </div>
+        <div className="proj">
+          <label>Current Work</label>
+          <div className="proj-row">
+            <select value={store.cur} onChange={e=>upd({...store,cur:e.target.value})}>
+              {store.projects.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+            <button className="btn sm" title="Manage works" onClick={()=>setProjModal(true)}>⚙</button>
+          </div>
+        </div>
+        <RailArt proj={proj}/>
+        <nav className="nav">
+          {Object.entries(groups).map(([sec,items])=>(
+            <div key={sec}>
+              <div className="nsec">{sec}</div>
+              {items.map(t=>(
+                <div key={t.id} tabIndex={0} className={'nitem'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)} onKeyDown={e=>e.key==='Enter'&&setTab(t.id)}>
+                  <span className="g">{t.g}</span><span>{t.lbl}</span>
+                  {counts[t.id]>0 && <span className="ct">{counts[t.id]}</span>}
+                </div>
+              ))}
+            </div>
+          ))}
+          <div className="nsec">Settings</div>
+          <div className="nitem" tabIndex={0} onClick={()=>setSetModal(true)}>
+            <span className="g">⚿</span><span>API & Backup</span>
+          </div>
+        </nav>
+      </aside>
+
+      <main className="main">
+        <div className="top">
+          <h2>{cur.lbl}</h2>
+          <span className="tag">{TAGLINES[tab]}</span>
+        </div>
+        {needsBackup &&
+          <div className="bknudge">
+            <span>It has been a while since your last backup. Everything lives on this machine alone.</span>
+            <span className="row" style={{gap:8}}>
+              <button className="btn sm gold" onClick={()=>setSetModal(true)}>Back up now</button>
+              <button className="btn sm" onClick={snoozeBackup}>Later</button>
+            </span>
+          </div>}
+        <div className="content">
+          <div className="wrap" style={tab==='galaxy'?{maxWidth:'100%'}:tab==='write'?{maxWidth:1200}:null}>
+            <TabRouter tab={tab} ctx={ctx}/>
+          </div>
+        </div>
+      </main>
+
+      <nav className="mobnav">
+        {TABS.map(t=>(
+          <div key={t.id} className={'mi'+(tab===t.id?' on':'')} onClick={()=>setTab(t.id)}>
+            <span className="g">{t.g}</span><span>{t.lbl.split(' ')[0]}</span>
+          </div>
+        ))}
+        <div className="mi" onClick={()=>setSetModal(true)}><span className="g">⚿</span><span>Setup</span></div>
+      </nav>
+
+      {cmd && <CmdPalette ctx={ctx} close={()=>setCmd(false)}/>}
+      {projModal && <ProjectModal store={store} upd={upd} flash={flash} close={()=>setProjModal(false)}/>}
+      {setModal && <SettingsModal store={store} upd={upd} flash={flash} close={()=>setSetModal(false)}/>}
+      {toast && <div className="toast">{toast}</div>}
+    </div>
+  );
+}
+
+function TabRouter({tab,ctx}){
+  switch(tab){
+    case 'dash':return <Dashboard ctx={ctx}/>;
+    case 'codex':return <Codex ctx={ctx}/>;
+    case 'galaxy':return <Galaxy ctx={ctx}/>;
+    case 'write':return <Manuscript ctx={ctx}/>;
+    case 'plot':return <Plot ctx={ctx}/>;
+    case 'threads':return <Threads ctx={ctx}/>;
+    case 'screens':return <Screens ctx={ctx}/>;
+    case 'capture':return <Capture ctx={ctx}/>;
+    case 'import':return <ImportTab ctx={ctx}/>;
+    case 'gallery':return <Gallery ctx={ctx}/>;
+    case 'log':return <WritingLog ctx={ctx}/>;
+    case 'names':return <NameForge ctx={ctx}/>;
+    case 'ai':return <AICompanion ctx={ctx}/>;
+    default:return null;
+  }
+}
+
+/* ════════ DASHBOARD ════════ */
+function Dashboard({ctx}){
+  const {pd,proj,setTab,setJump,store,upd}=ctx;
+  const lt=pd.lastTouched;
+  let ltCh=null,ltAct=null;
+  if(lt){for(const a of pd.plot.acts){const f=a.chapters.find(x=>x.id===lt.chId);if(f){ltCh=f;ltAct=a;break;}}}
+  const coverUrl=useImageURL(proj.coverId);
+  const totalWords=pd.log.reduce((a,l)=>a+(+l.words||0),0);
+  const msWords=Object.values(pd.manuscript||{}).reduce((a,m)=>a+countWords(m&&m.text),0);
+  const chapters=pd.plot.acts.reduce((a,ac)=>a+ac.chapters.length,0);
+  const open=pd.foreshadow.filter(f=>f.planted&&!f.paid);
+  const fresh=pd.entities.length===0&&chapters===0;
+  const stats=[
+    {n:pd.entities.length,l:'Codex entries'},
+    {n:chapters,l:'Chapters'},
+    {n:msWords.toLocaleString(),l:'Manuscript words'},
+    {n:totalWords.toLocaleString(),l:'Words logged'},
+    {n:open.length,l:'Open threads'},
+  ];
+  return (
+    <div>
+      <div className="hero">
+        <img src={coverUrl||'fairy.jpg'} alt="" style={coverUrl?null:{objectPosition:'50% 22%'}}/>
+        <div className="fade"/>
+      </div>
+      <div style={{padding:'14px 0 8px'}}>
+        <div className="hint" style={{fontFamily:'var(--mono)',fontSize:9,letterSpacing:2.4,textTransform:'uppercase',fontStyle:'normal'}}>Now writing</div>
+        <h2 style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:38,color:'var(--gold2)',lineHeight:1.1,margin:'8px 0 6px'}}>{proj.name}</h2>
+        {proj.desc && <p className="muted" style={{fontStyle:'italic',maxWidth:620}}>{proj.desc}</p>}
+      </div>
+      <hr className="rule"/>
+      {ltCh &&
+        <div className="card hov" style={{padding:'16px 20px',marginBottom:18,display:'flex',justifyContent:'space-between',alignItems:'center',gap:14,flexWrap:'wrap'}}
+          onClick={()=>{setJump({type:'chapter',id:ltCh.id});setTab('write');}}>
+          <div>
+            <div className="hint" style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:9,letterSpacing:2.2,textTransform:'uppercase'}}>Continue</div>
+            <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:22,color:'var(--gold2)',margin:'4px 0 2px'}}>{ltCh.title}</div>
+            <div className="muted" style={{fontSize:13}}>{ltAct.title} · {countWords(((pd.manuscript||{})[ltCh.id]||{}).text).toLocaleString()} words · touched {timeAgo(lt.at)}</div>
+          </div>
+          <span className="btn gold">Write ›</span>
+        </div>}
+      {fresh
+        ? <div className="card" style={{padding:26}}>
+            <div className="h3" style={{marginBottom:8}}>Begin the atlas</div>
+            <p className="muted" style={{maxWidth:560,marginBottom:18}}>Three ways in: write entries by hand in the Codex, let a manuscript populate everything through Import, or sketch the journey first in Plot. The Galaxy lights up as your world connects.</p>
+            <div className="row">
+              <button className="btn gold" onClick={()=>setTab('codex')}>Open the Codex</button>
+              <button className="btn" onClick={()=>setTab('import')}>Import a manuscript</button>
+              <button className="btn" onClick={()=>setTab('plot')}>Outline the plot</button>
+            </div>
+          </div>
+        : <>
+            <div className="grid g3" style={{marginBottom:22}}>
+              {stats.map((s,i)=><div key={i} className="stat"><div className="n">{s.n}</div><div className="l">{s.l}</div></div>)}
+            </div>
+            <div className="grid g3">
+              {[['write','❧','Manuscript','Sit down and write'],['galaxy','✦','Galaxy','See the constellation'],['codex','❖','Codex','People, places & powers'],['plot','▤','Plot','Acts, chapters, beats'],['threads','⌇','Threads','Seeds planted & paid'],['ai','✧','Companion','Think it through']].map(([id,g,t,d])=>(
+                <div key={id} className="card hov" onClick={()=>setTab(id)}>
+                  <div style={{fontSize:19,color:'var(--gold)',marginBottom:10}}>{g}</div>
+                  <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:18}}>{t}</div>
+                  <div className="hint">{d}</div>
+                </div>
+              ))}
+            </div>
+            <hr className="rule"/>
+            <div className="h3" style={{marginBottom:12}}>The rhythm</div>
+            <div className="card" style={{padding:'18px 20px',marginBottom:22}}>
+              <PaceCard proj={proj} store={store} upd={upd} msWords={msWords} log={pd.log}/>
+              <Heatmap log={pd.log}/>
+            </div>
+            {open.length>0 && <>
+              <hr className="rule"/>
+              <div className="h3" style={{marginBottom:12}}>Open threads</div>
+              {open.slice(0,4).map(f=>(
+                <div key={f.id} className="beat" style={{cursor:'pointer'}} onClick={()=>setTab('threads')}>
+                  <span className="muted">{f.setup||'(unwritten setup)'}</span>
+                </div>
+              ))}
+            </>}
+          </>}
+    </div>
+  );
+}
+
+/* ════════ CODEX ════════ */
+function Codex({ctx}){
+  const {pd,setPd,flash,jump,clearJump}=ctx;
+  const _ctx=ctx;
+  const [open,setOpen]=useState(null);
+  const [editing,setEditing]=useState(null);
+  const [q,setQ]=useState('');
+  const [typeFilter,setTypeFilter]=useState('all');
+  useEffect(()=>{if(jump&&jump.type==='entity'){setOpen(jump.id);clearJump();}},[jump]);
+  const [ren,setRen]=useState(null);
+
+  const entities=pd.entities;
+  const byId=useMemo(()=>Object.fromEntries(entities.map(e=>[e.id,e])),[entities]);
+  const visible=entities.filter(e=>{
+    if(typeFilter!=='all'&&e.type!==typeFilter)return false;
+    if(q){const s=q.toLowerCase();return e.name.toLowerCase().includes(s)||(e.notes||'').toLowerCase().includes(s)||(e.tags||[]).some(t=>t.toLowerCase().includes(s));}
+    return true;
+  });
+  const saveEntity=(ent)=>{
+    const exists=entities.some(e=>e.id===ent.id);
+    setPd({entities:exists?entities.map(e=>e.id===ent.id?ent:e):[...entities,ent]});
+    setEditing(null);flash(exists?'Entry updated':'Added to the Codex');
+  };
+  const delEntity=(id)=>{
+    const next=entities.filter(e=>e.id!==id).map(e=>({...e,links:(e.links||[]).filter(l=>l!==id)}));
+    setPd({entities:next});setOpen(null);setEditing(null);flash('Entry removed');
+  };
+  const newEntity=(type)=>setEditing({id:uid(),type,name:'',fields:{},tags:[],links:[],notes:'',createdAt:now()});
+
+  return (
+    <div>
+      <div className="between" style={{marginBottom:14}}>
+        <div className="row" style={{flex:1}}>
+          <input placeholder="Search the codex…" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:260}}/>
+        </div>
+        <NewEntityBtn onPick={newEntity}/>
+      </div>
+      <div className="row" style={{gap:6,marginBottom:18}}>
+        <span className="lchip" onClick={()=>setTypeFilter('all')}
+          style={{color:typeFilter==='all'?'var(--gold2)':'var(--faint)',borderColor:typeFilter==='all'?'var(--gold)':'var(--hair2)',background:'transparent'}}>All · {entities.length}</span>
+        {Object.entries(ENTITY_TYPES).map(([k,T])=>{
+          const n=entities.filter(e=>e.type===k).length;
+          const on=typeFilter===k;
+          return <span key={k} className="lchip" onClick={()=>setTypeFilter(on?'all':k)}
+            style={{color:on?T.color:'var(--faint)',borderColor:on?T.color:'var(--hair2)',background:'transparent'}}>{T.g} {T.plural}{n?` · ${n}`:''}</span>;
+        })}
+      </div>
+
+      {visible.length===0
+        ? <div className="empty"><div className="glyph">❖</div>
+            <div>{q?'Nothing matches that search.':'The codex is empty. Create your first entry, or let Import read a manuscript for you.'}</div>
+            {!q && <div className="act"><NewEntityBtn onPick={newEntity} gold/></div>}</div>
+        : <div className="grid g2">
+            {visible.map(e=>{
+              const T=ENTITY_TYPES[e.type];
+              const linkCount=(e.links||[]).length+entities.filter(o=>(o.links||[]).includes(e.id)).length;
+              return (
+                <div key={e.id} className="card hov" onClick={()=>setOpen(e.id)} style={{overflow:'hidden'}}>
+                  {e.imageId && <CardBanner id={e.imageId}/>}
+                  <div className="between" style={{marginBottom:8}}>
+                    <span className="chip" style={{color:T.color,borderColor:T.color+'55'}}>{T.g} {T.label}</span>
+                    {linkCount>0 && <span className="muted" style={{fontFamily:'var(--mono)',fontSize:10.5}}>⟡ {linkCount}</span>}
+                  </div>
+                  <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:20}}>{e.name||'(unnamed)'}</div>
+                  {e.fields?.role && <div className="hint">{e.fields.role}</div>}
+                  {e.notes && <p className="muted" style={{fontSize:13.5,marginTop:6,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{e.notes}</p>}
+                  {(e.tags||[]).length>0 && <div style={{marginTop:8}}>{e.tags.slice(0,4).map(t=><span key={t} className="tag">{t}</span>)}</div>}
+                </div>
+              );
+            })}
+          </div>}
+
+      {open && byId[open] &&
+        <EntityView ent={byId[open]} byId={byId} entities={entities}
+          onClose={()=>setOpen(null)} onEdit={()=>setEditing(byId[open])}
+          onNav={id=>setOpen(id)} onDelete={()=>delEntity(open)}
+          onRename={()=>setRen(byId[open])}/>}
+      {ren && <RenameModal ent={ren} ctx={_ctx} close={()=>setRen(null)}/>}
+      {editing &&
+        <EntityEditor ent={editing} entities={entities}
+          onSave={saveEntity} onClose={()=>setEditing(null)}
+          onDelete={entities.some(e=>e.id===editing.id)?()=>delEntity(editing.id):null}/>}
+    </div>
+  );
+}
+function CardBanner({id}){
+  const url=useImageURL(id);if(!url)return null;
+  return <div style={{height:110,margin:'-18px -18px 14px',overflow:'hidden'}}><img src={url} alt="" style={{width:'100%',height:'100%',objectFit:'cover',opacity:.92}}/></div>;
+}
+function NewEntityBtn({onPick,gold}){
+  const [open,setOpen]=useState(false);
+  return (
+    <div style={{position:'relative'}}>
+      <button className={'btn'+(gold!==false?' gold':'')} onClick={()=>setOpen(o=>!o)}>＋ New entry</button>
+      {open &&
+        <div style={{position:'absolute',right:0,top:'112%',background:'var(--deep)',border:'1px solid var(--hair2)',borderRadius:12,padding:6,zIndex:20,boxShadow:'var(--shadow)',minWidth:176}}>
+          {Object.entries(ENTITY_TYPES).map(([k,T])=>(
+            <div key={k} className="nitem" onClick={()=>{onPick(k);setOpen(false);}}>
+              <span className="g" style={{color:T.color}}>{T.g}</span>{T.label}
+            </div>
+          ))}
+        </div>}
+    </div>
+  );
+}
+
+function EntityView({ent,byId,entities,onClose,onEdit,onNav,onDelete,onRename}){
+  const T=ENTITY_TYPES[ent.type];
+  const heroUrl=useImageURL(ent.imageId);
+  const linked=(ent.links||[]).map(id=>byId[id]).filter(Boolean);
+  const backlinks=entities.filter(o=>(o.links||[]).includes(ent.id));
+  const linkedIds=new Set(ent.links||[]);
+  const onlyBack=backlinks.filter(b=>!linkedIds.has(b.id));
+  const F=(ent.fields||{});
+  return (
+    <div className="scrim" onClick={onClose}>
+      <div className="modal wide" onClick={e=>e.stopPropagation()}>
+        <div className="mhead">
+          <span className="chip" style={{color:T.color,borderColor:T.color+'55'}}>{T.g} {T.label}</span>
+          <h3 style={{flex:1}}>{ent.name||'(unnamed)'}</h3>
+          <button className="btn sm" onClick={onEdit}>Edit</button>
+          {onRename && <button className="btn sm" onClick={onRename} title="Find & replace this name across the whole book">Rename…</button>}
+          <span className="x" onClick={onClose}>×</span>
+        </div>
+        <div className="mbody">
+          {ent.imageId&&heroUrl && <img src={heroUrl} alt="" style={{width:'100%',maxHeight:280,objectFit:'cover',borderRadius:12,marginBottom:16}}/>}
+          {(ent.tags||[]).length>0 && <div style={{marginBottom:14}}>{ent.tags.map(t=><span key={t} className="tag">{t}</span>)}</div>}
+          {T.fields.map(f=>F[f]?(
+            <div key={f} className="field">
+              <label>{FIELD_LABELS[f]||f}</label>
+              <div style={{whiteSpace:'pre-wrap'}}>{F[f]}</div>
+            </div>
+          ):null)}
+          {ent.notes && <div className="field"><label>Notes</label><div style={{whiteSpace:'pre-wrap'}}>{ent.notes}</div></div>}
+          <hr className="rule"/>
+          <div className="h3" style={{fontSize:16,marginBottom:6}}>Connections</div>
+          {linked.length===0&&onlyBack.length===0
+            ? <p className="hint">Nothing linked yet. Edit this entry, or bind stars directly in the Galaxy.</p>
+            : <>
+                {linked.length>0 && <>
+                  <div className="field" style={{marginBottom:4}}><label>Links to</label></div>
+                  <div>{linked.map(l=><LinkPill key={l.id} ent={l} onClick={()=>onNav(l.id)}/>)}</div>
+                </>}
+                {onlyBack.length>0 && <>
+                  <div className="field" style={{margin:'12px 0 4px'}}><label>Referenced by</label></div>
+                  <div>{onlyBack.map(l=><LinkPill key={l.id} ent={l} onClick={()=>onNav(l.id)}/>)}</div>
+                </>}
+              </>}
+        </div>
+        <div className="mfoot">
+          <button className="btn danger" onClick={onDelete}>Delete</button>
+          <div style={{flex:1}}/>
+          <button className="btn" onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function LinkPill({ent,onClick}){
+  const T=ENTITY_TYPES[ent.type];
+  return <span className="pill" onClick={onClick}><span className="dot" style={{background:T.color}}/>{ent.name||'(unnamed)'}</span>;
+}
+
+function EntityEditor({ent,entities,onSave,onClose,onDelete}){
+  const [e,setE]=useState({...ent,fields:{...ent.fields}});
+  const [tagIn,setTagIn]=useState('');
+  const T=ENTITY_TYPES[e.type];
+  const setF=(k,v)=>setE(s=>({...s,fields:{...s.fields,[k]:v}}));
+  const addTag=()=>{const t=tagIn.trim();if(t&&!(e.tags||[]).includes(t)){setE(s=>({...s,tags:[...(s.tags||[]),t]}));}setTagIn('');};
+  const toggleLink=(id)=>setE(s=>({...s,links:(s.links||[]).includes(id)?s.links.filter(l=>l!==id):[...(s.links||[]),id]}));
+  const others=entities.filter(o=>o.id!==e.id);
+  return (
+    <div className="scrim" onClick={onClose}>
+      <div className="modal wide" onClick={ev=>ev.stopPropagation()}>
+        <div className="mhead">
+          <span className="chip" style={{color:T.color,borderColor:T.color+'55'}}>{T.g} {T.label}</span>
+          <h3>{entities.some(x=>x.id===e.id)?'Edit entry':'New entry'}</h3>
+          <span className="x" onClick={onClose}>×</span>
+        </div>
+        <div className="mbody">
+          <div className="field"><label>Name</label>
+            <input value={e.name} autoFocus onChange={ev=>setE(s=>({...s,name:ev.target.value}))} placeholder={`Name this ${T.label.toLowerCase()}…`}/></div>
+          <div className="field"><label>Portrait / image</label>
+            <EntityImageField e={e} setE={setE}/></div>
+          {T.fields.map(f=>(
+            <div key={f} className="field"><label>{FIELD_LABELS[f]||f}</label>
+              {['description','summary','history','rules','arc','personality','properties','consequence','ideology','goals'].includes(f)
+                ? <textarea rows={3} value={e.fields[f]||''} onChange={ev=>setF(f,ev.target.value)}/>
+                : <input value={e.fields[f]||''} onChange={ev=>setF(f,ev.target.value)}/>}
+            </div>
+          ))}
+          <div className="field"><label>Notes</label>
+            <textarea rows={3} value={e.notes||''} onChange={ev=>setE(s=>({...s,notes:ev.target.value}))}/></div>
+          <div className="field"><label>Tags</label>
+            <div className="row" style={{gap:6}}>
+              <input value={tagIn} onChange={ev=>setTagIn(ev.target.value)} onKeyDown={ev=>ev.key==='Enter'&&(ev.preventDefault(),addTag())} placeholder="Add a tag, press Enter" style={{maxWidth:230}}/>
+              <button className="btn sm" onClick={addTag}>Add</button>
+            </div>
+            <div style={{marginTop:8}}>{(e.tags||[]).map(t=>(
+              <span key={t} className="tag" style={{cursor:'pointer'}} onClick={()=>setE(s=>({...s,tags:s.tags.filter(x=>x!==t)}))}>{t} ×</span>
+            ))}</div>
+          </div>
+          <hr className="rule"/>
+          <div className="field"><label>Link to other entries</label></div>
+          {others.length===0
+            ? <p className="hint">Create more entries first, then bind them here or in the Galaxy.</p>
+            : <div style={{maxHeight:190,overflowY:'auto',border:'1px solid var(--hair)',borderRadius:11,padding:8}}>
+                {others.map(o=>{
+                  const on=(e.links||[]).includes(o.id);const OT=ENTITY_TYPES[o.type];
+                  return (
+                    <div key={o.id} onClick={()=>toggleLink(o.id)}
+                      style={{display:'flex',alignItems:'center',gap:9,padding:'6px 9px',borderRadius:8,cursor:'pointer',background:on?'rgba(var(--goldRGB),.08)':'transparent',border:'1px solid '+(on?'rgba(var(--goldRGB),.45)':'transparent')}}>
+                      <span style={{width:16,textAlign:'center',color:on?'var(--gold2)':'var(--faint)',fontSize:12}}>{on?'✓':''}</span>
+                      <span className="dot" style={{background:OT.color}}/>
+                      <span>{o.name||'(unnamed)'}</span>
+                      <span className="muted" style={{marginLeft:'auto',fontSize:11}}>{OT.label}</span>
+                    </div>
+                  );
+                })}
+              </div>}
+        </div>
+        <div className="mfoot">
+          {onDelete && <button className="btn danger" onClick={onDelete}>Delete</button>}
+          <div style={{flex:1}}/>
+          <button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn gold" disabled={!e.name.trim()} onClick={()=>onSave(e)}>Save entry</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════ GALAXY ════════ */
+function Galaxy({ctx}){
+  const {pd,setPd,flash}=ctx;
+  const entities=pd.entities;
+  const wrapRef=useRef(),canvasRef=useRef();
+  const S=useRef(null); // mutable sim state
+  if(!S.current){
+    S.current={nodes:[],nid:{},view:{x:0,y:0,k:0.85},alpha:1,hover:null,drag:null,pan:null,
+      mouse:{x:0,y:0,wx:0,wy:0},linkFrom:null,images:new Map(),stars:null,t:0,didFit:false};
+  }
+  const [inspect,setInspect]=useState(null);
+  const [editing,setEditing]=useState(null);
+  const [linkMode,setLinkMode]=useState(false);
+  const [linkFromUi,setLinkFromUi]=useState(null);
+  const [edgePop,setEdgePop]=useState(null);   // {from,to,sx,sy}
+  const [quickAdd,setQuickAdd]=useState(null); // {sx,sy,wx,wy}
+  const [hidden,setHidden]=useState({});
+  const [q,setQ]=useState('');
+  const pendingPos=useRef(null);
+  const hiddenRef=useRef(hidden);hiddenRef.current=hidden;
+  const linkModeRef=useRef(linkMode);linkModeRef.current=linkMode;
+  const pdRef=useRef(pd);pdRef.current=pd;
+  const relations=pd.relations||{};
+  const relRef=useRef(relations);relRef.current=relations;
+
+  const typeKeys=Object.keys(ENTITY_TYPES);
+  const anchor=(type)=>{const i=typeKeys.indexOf(type);const a=(i/typeKeys.length)*Math.PI*2-Math.PI/2;
+    return {x:Math.cos(a)*340,y:Math.sin(a)*340};};
+
+  /* sync entities -> sim nodes */
+  useEffect(()=>{
+    const s=S.current;const keep={};
+    const stored=(pd.board&&pd.board.positions)||{};
+    entities.forEach(e=>{
+      let n=s.nid[e.id];
+      if(!n){
+        const st=stored[e.id];const an=anchor(e.type);
+        n={id:e.id,x:st?st.x:an.x+(Math.random()*220-110),y:st?st.y:an.y+(Math.random()*220-110),
+           vx:0,vy:0,pinned:!!st};
+        s.alpha=Math.max(s.alpha,.6);
+      }
+      n.type=e.type;n.name=e.name;n.imageId=e.imageId;
+      keep[e.id]=n;
+      if(e.imageId&&!s.images.has(e.imageId)){
+        s.images.set(e.imageId,'loading');
+        idbGet(e.imageId).then(rec=>{if(rec){const im=new Image();im.onload=()=>s.images.set(e.imageId,im);im.src=rec.dataUrl;}}).catch(()=>{});
+      }
+    });
+    s.nid=keep;s.nodes=entities.map(e=>keep[e.id]);
+    // degree
+    const deg={};entities.forEach(e=>{deg[e.id]=deg[e.id]||0;(e.links||[]).forEach(t=>{deg[e.id]++;deg[t]=(deg[t]||0)+1;});});
+    s.nodes.forEach(n=>{n.deg=deg[n.id]||0;n.r=10+Math.min(15,(deg[n.id]||0)*2.4);});
+    s.edges=[];entities.forEach(e=>{(e.links||[]).forEach(t=>{if(keep[t])s.edges.push({a:keep[e.id],b:keep[t],from:e.id,to:t});});});
+  },[entities,pd.board]);
+
+  const persistPositions=useCallback(()=>{
+    const s=S.current;const pos={};
+    s.nodes.forEach(n=>{if(n.pinned)pos[n.id]={x:Math.round(n.x),y:Math.round(n.y)};});
+    setPd({board:{...(pdRef.current.board||{}),positions:pos}});
+  },[setPd]);
+
+  const addLink=useCallback((a,b)=>{
+    const ents=pdRef.current.entities;
+    if(a===b)return;
+    const src=ents.find(e=>e.id===a);
+    if(src&&(src.links||[]).includes(b)){flash('Already bound');return;}
+    setPd({entities:ents.map(e=>e.id===a?{...e,links:[...(e.links||[]),b]}:e)});
+    S.current.alpha=Math.max(S.current.alpha,.5);
+    flash('Bound: '+(S.current.nid[a]?.name||'')+' → '+(S.current.nid[b]?.name||''));
+  },[setPd,flash]);
+  const removeLink=useCallback((a,b)=>{
+    const ents=pdRef.current.entities;
+    const r={...(pdRef.current.relations||{})};delete r[a+'|'+b];
+    setPd({entities:ents.map(e=>e.id===a?{...e,links:(e.links||[]).filter(l=>l!==b)}:e),relations:r});
+    setEdgePop(null);flash('Connection removed');
+  },[setPd,flash]);
+  const setRelation=useCallback((key,val)=>{
+    const r={...(pdRef.current.relations||{})};
+    if(val.trim())r[key]=val;else delete r[key];
+    setPd({relations:r});
+  },[setPd]);
+
+  const focusNode=useCallback((id)=>{
+    const s=S.current,n=s.nid[id];if(!n)return;
+    const rect=wrapRef.current.getBoundingClientRect();
+    const k=Math.max(s.view.k,1.05);
+    s.view={k,x:rect.width/2-n.x*k,y:rect.height/2-n.y*k};
+    setInspect(id);
+  },[]);
+
+  /* canvas loop */
+  useEffect(()=>{
+    const canvas=canvasRef.current,wrap=wrapRef.current;
+    const ctx2=canvas.getContext('2d');
+    let raf,running=true;
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+
+    const resize=()=>{const r=wrap.getBoundingClientRect();
+      canvas.width=r.width*dpr;canvas.height=r.height*dpr;
+      canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';};
+    resize();const ro=new ResizeObserver(resize);ro.observe(wrap);
+
+    const s=S.current;
+    if(!s.stars){
+      s.stars=[];
+      for(let i=0;i<200;i++)s.stars.push({x:Math.random()*3200-1600,y:Math.random()*2400-1200,r:Math.random()*1.1+.3,p:.3,tw:Math.random()*6});
+      for(let i=0;i<70;i++)s.stars.push({x:Math.random()*3200-1600,y:Math.random()*2400-1200,r:Math.random()*1.5+.7,p:.55,tw:Math.random()*6});
+    }
+
+    const visList=()=>s.nodes.filter(n=>!hiddenRef.current[n.type]);
+    const visEdges=()=>s.edges.filter(ed=>!hiddenRef.current[ed.a.type]&&!hiddenRef.current[ed.b.type]);
+
+    function step(){
+      if(s.alpha<.012)return;
+      const a=s.alpha,N=visList();
+      for(let i=0;i<N.length;i++){const n1=N[i];
+        for(let j=i+1;j<N.length;j++){const n2=N[j];
+          let dx=n1.x-n2.x,dy=n1.y-n2.y;let d2=dx*dx+dy*dy;
+          if(d2<1){dx=Math.random()-.5;dy=Math.random()-.5;d2=1;}
+          if(d2>240000)continue;
+          const f=(2900*a)/d2;
+          const fx=dx*f,fy=dy*f;
+          if(!n1.fixed){n1.vx+=fx;n1.vy+=fy;}
+          if(!n2.fixed){n2.vx-=fx;n2.vy-=fy;}
+        }}
+      visEdges().forEach(ed=>{
+        const dx=ed.b.x-ed.a.x,dy=ed.b.y-ed.a.y;
+        const d=Math.sqrt(dx*dx+dy*dy)||1;
+        const f=(d-150)*0.011*a;
+        const fx=dx/d*f,fy=dy/d*f;
+        if(!ed.a.fixed){ed.a.vx+=fx;ed.a.vy+=fy;}
+        if(!ed.b.fixed){ed.b.vx-=fx;ed.b.vy-=fy;}
+      });
+      N.forEach(n=>{
+        if(n.fixed)return;
+        const an=anchor(n.type);
+        n.vx+=(an.x-n.x)*0.0024*a+(0-n.x)*0.0006*a;
+        n.vy+=(an.y-n.y)*0.0024*a+(0-n.y)*0.0006*a;
+        n.vx*=.84;n.vy*=.84;
+        const sp=Math.sqrt(n.vx*n.vx+n.vy*n.vy);
+        if(sp>9){n.vx*=9/sp;n.vy*=9/sp;}
+        n.x+=n.vx;n.y+=n.vy;
+      });
+      s.alpha*=.986;
+    }
+
+    function rr(x,y,w,h,r){ctx2.beginPath();ctx2.moveTo(x+r,y);ctx2.arcTo(x+w,y,x+w,y+h,r);ctx2.arcTo(x+w,y+h,x,y+h,r);ctx2.arcTo(x,y+h,x,y,r);ctx2.arcTo(x,y,x+w,y,r);ctx2.closePath();}
+
+    function draw(){
+      s.t+=.016;
+      const W=canvas.width/dpr,H=canvas.height/dpr;
+      ctx2.setTransform(dpr,0,0,dpr,0,0);
+      ctx2.clearRect(0,0,W,H);
+      const v=s.view;
+      // starfield (parallax layers)
+      s.stars.forEach(st=>{
+        const sx=st.x*v.k*st.p+v.x*st.p+W*(1-st.p)/2;
+        const sy=st.y*v.k*st.p+v.y*st.p+H*(1-st.p)/2;
+        if(sx<-4||sx>W+4||sy<-4||sy>H+4)return;
+        const tw=.45+.4*Math.sin(s.t*1.3+st.tw);
+        ctx2.globalAlpha=tw*(st.p>.4?.8:.5);
+        ctx2.fillStyle=st.p>.4?'#d8cdb2':'#9aa3bd';
+        ctx2.beginPath();ctx2.arc(sx,sy,st.r,0,7);ctx2.fill();
+      });
+      ctx2.globalAlpha=1;
+
+      ctx2.save();ctx2.translate(v.x,v.y);ctx2.scale(v.k,v.k);
+      const hov=s.hover;
+      const connected=new Set();
+      if(hov){connected.add(hov);
+        s.edges.forEach(ed=>{if(ed.from===hov)connected.add(ed.to);if(ed.to===hov)connected.add(ed.from);});}
+
+      // edges
+      visEdges().forEach(ed=>{
+        const hot=hov&&(ed.from===hov||ed.to===hov);
+        const dimd=hov&&!hot;
+        const dx=ed.b.x-ed.a.x,dy=ed.b.y-ed.a.y,d=Math.sqrt(dx*dx+dy*dy)||1;
+        const ux=dx/d,uy=dy/d;
+        const ax=ed.a.x+ux*(ed.a.r+4),ay=ed.a.y+uy*(ed.a.r+4);
+        const bx=ed.b.x-ux*(ed.b.r+7),by=ed.b.y-uy*(ed.b.r+7);
+        ctx2.strokeStyle=hot?'rgba(238,213,152,.85)':'rgba(var(--goldRGB),'+(dimd?.06:.3)+')';
+        ctx2.lineWidth=(hot?1.7:1)/v.k+ (hot?.6:0);
+        ctx2.shadowBlur=hot?8:0;ctx2.shadowColor='rgba(238,213,152,.7)';
+        ctx2.beginPath();ctx2.moveTo(ax,ay);ctx2.lineTo(bx,by);ctx2.stroke();
+        ctx2.shadowBlur=0;
+        // arrowhead
+        ctx2.fillStyle=hot?'rgba(238,213,152,.9)':'rgba(var(--goldRGB),'+(dimd?.08:.45)+')';
+        const ah=5.5;
+        ctx2.beginPath();
+        ctx2.moveTo(bx,by);
+        ctx2.lineTo(bx-ux*ah-uy*ah*.55,by-uy*ah+ux*ah*.55);
+        ctx2.lineTo(bx-ux*ah+uy*ah*.55,by-uy*ah-ux*ah*.55);
+        ctx2.closePath();ctx2.fill();
+        // label
+        const lbl=relRef.current[ed.from+'|'+ed.to];
+        if(lbl&&(hot||v.k>=.95)&&!dimd){
+          const mx=(ax+bx)/2,my=(ay+by)/2;
+          ctx2.font='10px JetBrains Mono';
+          const tw=ctx2.measureText(lbl).width;
+          ctx2.fillStyle='rgba(10,11,16,.85)';
+          rr(mx-tw/2-7,my-9,tw+14,18,6);ctx2.fill();
+          ctx2.strokeStyle=hot?'rgba(238,213,152,.6)':'rgba(var(--goldRGB),.3)';ctx2.lineWidth=1/v.k;ctx2.stroke();
+          ctx2.fillStyle=hot?'#eed598':'#a59c86';
+          ctx2.textAlign='center';ctx2.textBaseline='middle';
+          ctx2.fillText(lbl,mx,my+.5);
+        }
+      });
+
+      // link-in-progress
+      if(s.linkFrom&&s.nid[s.linkFrom]){
+        const n=s.nid[s.linkFrom];
+        ctx2.setLineDash([5,5]);
+        ctx2.strokeStyle='rgba(238,213,152,.8)';ctx2.lineWidth=1.4/v.k;
+        ctx2.beginPath();ctx2.moveTo(n.x,n.y);ctx2.lineTo(s.mouse.wx,s.mouse.wy);ctx2.stroke();
+        ctx2.setLineDash([]);
+      }
+
+      // nodes
+      visList().forEach(n=>{
+        const T=ENTITY_TYPES[n.type];
+        const hot=hov===n.id, near=connected.has(n.id);
+        const dimd=hov&&!near;
+        ctx2.globalAlpha=dimd?.22:1;
+        // glow
+        const glowR=n.r*(hot?2.6:2.0)+(hot?3*Math.sin(s.t*2.4):0);
+        const gr=ctx2.createRadialGradient(n.x,n.y,n.r*.4,n.x,n.y,glowR);
+        gr.addColorStop(0,T.color+(hot?'66':'40'));
+        gr.addColorStop(1,T.color+'00');
+        ctx2.fillStyle=gr;
+        ctx2.beginPath();ctx2.arc(n.x,n.y,glowR,0,7);ctx2.fill();
+        // body
+        const img=n.imageId?s.images.get(n.imageId):null;
+        if(img&&img!=='loading'){
+          ctx2.save();ctx2.beginPath();ctx2.arc(n.x,n.y,n.r,0,7);ctx2.clip();
+          const sc=Math.max(n.r*2/img.width,n.r*2/img.height);
+          ctx2.drawImage(img,n.x-img.width*sc/2,n.y-img.height*sc/2,img.width*sc,img.height*sc);
+          ctx2.restore();
+        }else{
+          ctx2.fillStyle='#0d0f17';
+          ctx2.beginPath();ctx2.arc(n.x,n.y,n.r,0,7);ctx2.fill();
+          ctx2.fillStyle=T.color;ctx2.globalAlpha=(dimd?.22:1)*.9;
+          ctx2.font='500 '+Math.max(9,n.r*.95)+'px Cormorant Garamond';
+          ctx2.textAlign='center';ctx2.textBaseline='middle';
+          ctx2.fillText((n.name||'·').charAt(0).toUpperCase(),n.x,n.y+1);
+          ctx2.globalAlpha=dimd?.22:1;
+        }
+        ctx2.strokeStyle=T.color;ctx2.lineWidth=(hot?2:1.3)/Math.sqrt(v.k);
+        ctx2.beginPath();ctx2.arc(n.x,n.y,n.r,0,7);ctx2.stroke();
+        if(n.pinned){ctx2.fillStyle='#eed598';ctx2.beginPath();ctx2.arc(n.x+n.r*.78,n.y-n.r*.78,2.2,0,7);ctx2.fill();}
+        // label
+        const showLbl=hot||near||v.k>.72||n.deg>=4;
+        if(showLbl){
+          ctx2.font=(hot?'500 ':'400 ')+'12.5px Spectral';
+          ctx2.textAlign='center';ctx2.textBaseline='top';
+          ctx2.fillStyle='rgba(8,9,13,.7)';
+          const nm=n.name||'(unnamed)';
+          const tw2=ctx2.measureText(nm).width;
+          rr(n.x-tw2/2-5,n.y+n.r+4,tw2+10,17,5);ctx2.fill();
+          ctx2.fillStyle=hot?'#eed598':(dimd?'rgba(233,226,208,.4)':'#cfc7b2');
+          ctx2.fillText(nm,n.x,n.y+n.r+6.5);
+        }
+        ctx2.globalAlpha=1;
+      });
+      ctx2.restore();
+    }
+
+    function loop(){if(!running)return;step();draw();raf=requestAnimationFrame(loop);}
+    loop();
+
+    /* fit once on first open with content */
+    const fitNow=()=>{
+      const N=s.nodes.filter(n=>!hiddenRef.current[n.type]);if(!N.length)return;
+      const r=wrap.getBoundingClientRect();
+      const xs=N.map(n=>n.x),ys=N.map(n=>n.y);
+      const minX=Math.min(...xs)-60,maxX=Math.max(...xs)+60,minY=Math.min(...ys)-60,maxY=Math.max(...ys)+60;
+      const k=Math.min(1.6,Math.max(.3,Math.min(r.width/(maxX-minX),r.height/(maxY-minY))));
+      s.view={k,x:(r.width-(maxX+minX)*k)/2,y:(r.height-(maxY+minY)*k)/2};
+    };
+    s.fit=fitNow;
+    if(!s.didFit){setTimeout(()=>{fitNow();s.didFit=true;},420);}
+
+    /* pointer interaction */
+    const toWorld=(cx,cy)=>{const r=wrap.getBoundingClientRect();
+      return {x:(cx-r.left-s.view.x)/s.view.k,y:(cy-r.top-s.view.y)/s.view.k};};
+    const hitNode=(wx,wy)=>{
+      const N=s.nodes.filter(n=>!hiddenRef.current[n.type]);
+      for(let i=N.length-1;i>=0;i--){const n=N[i];
+        const dx=wx-n.x,dy=wy-n.y;if(dx*dx+dy*dy<=(n.r+5)*(n.r+5))return n;}
+      return null;};
+    const hitEdge=(wx,wy)=>{
+      let best=null,bd=8/s.view.k+3;
+      s.edges.forEach(ed=>{
+        if(hiddenRef.current[ed.a.type]||hiddenRef.current[ed.b.type])return;
+        const x1=ed.a.x,y1=ed.a.y,x2=ed.b.x,y2=ed.b.y;
+        const L2=(x2-x1)**2+(y2-y1)**2;if(!L2)return;
+        let t=((wx-x1)*(x2-x1)+(wy-y1)*(y2-y1))/L2;t=Math.max(.12,Math.min(.88,t));
+        const px=x1+t*(x2-x1),py=y1+t*(y2-y1);
+        const d=Math.hypot(wx-px,wy-py);
+        if(d<bd){bd=d;best=ed;}});
+      return best;};
+
+    const down=e=>{
+      if(e.target!==canvas)return;
+      canvas.setPointerCapture(e.pointerId);
+      const w=toWorld(e.clientX,e.clientY);
+      const n=hitNode(w.x,w.y);
+      setEdgePop(null);setQuickAdd(null);
+      if(n){
+        if(linkModeRef.current){
+          if(!s.linkFrom){s.linkFrom=n.id;setLinkFromUi(n.id);}
+          else{addLink(s.linkFrom,n.id);s.linkFrom=null;setLinkFromUi(null);}
+          return;
+        }
+        s.drag={n,ox:w.x-n.x,oy:w.y-n.y,moved:false};
+        n.fixed=true;
+      }else{
+        const ed=hitEdge(w.x,w.y);
+        if(ed){
+          const r=wrap.getBoundingClientRect();
+          const mx=(ed.a.x+ed.b.x)/2,my=(ed.a.y+ed.b.y)/2;
+          setEdgePop({from:ed.from,to:ed.to,sx:mx*s.view.k+s.view.x,sy:my*s.view.k+s.view.y});
+          return;
+        }
+        s.pan={sx:e.clientX,sy:e.clientY,vx:s.view.x,vy:s.view.y};
+        canvas.style.cursor='grabbing';
+      }
+    };
+    const move=e=>{
+      const w=toWorld(e.clientX,e.clientY);
+      s.mouse={x:e.clientX,y:e.clientY,wx:w.x,wy:w.y};
+      if(s.drag){
+        const n=s.drag.n;
+        n.x=w.x-s.drag.ox;n.y=w.y-s.drag.oy;n.vx=0;n.vy=0;
+        if(Math.abs(e.movementX)+Math.abs(e.movementY)>1)s.drag.moved=true;
+        s.alpha=Math.max(s.alpha,.25);
+        return;
+      }
+      if(s.pan){s.view.x=s.pan.vx+(e.clientX-s.pan.sx);s.view.y=s.pan.vy+(e.clientY-s.pan.sy);return;}
+      const n=hitNode(w.x,w.y);
+      s.hover=n?n.id:null;
+      canvas.style.cursor=n?'pointer':(linkModeRef.current?'crosshair':'grab');
+    };
+    const up=e=>{
+      if(s.drag){
+        const n=s.drag.n;n.fixed=false;
+        if(s.drag.moved){n.pinned=true;persistPositions();}
+        else{setInspect(n.id);}
+        s.drag=null;
+      }
+      if(s.pan){s.pan=null;canvas.style.cursor='grab';}
+    };
+    const dbl=e=>{
+      const w=toWorld(e.clientX,e.clientY);
+      if(hitNode(w.x,w.y))return;
+      const r=wrap.getBoundingClientRect();
+      setQuickAdd({sx:e.clientX-r.left,sy:e.clientY-r.top,wx:w.x,wy:w.y});
+    };
+    const wheel=e=>{
+      e.preventDefault();
+      const r=wrap.getBoundingClientRect();
+      const mx=e.clientX-r.left,my=e.clientY-r.top;
+      const k2=Math.min(2.6,Math.max(.25,s.view.k*(e.deltaY<0?1.11:.9)));
+      const f=k2/s.view.k;
+      s.view={k:k2,x:mx-(mx-s.view.x)*f,y:my-(my-s.view.y)*f};
+    };
+    const key=e=>{if(e.key==='Escape'){s.linkFrom=null;setLinkFromUi(null);setLinkMode(false);setEdgePop(null);setQuickAdd(null);}};
+
+    canvas.addEventListener('pointerdown',down);
+    canvas.addEventListener('pointermove',move);
+    canvas.addEventListener('pointerup',up);
+    canvas.addEventListener('dblclick',dbl);
+    canvas.addEventListener('wheel',wheel,{passive:false});
+    window.addEventListener('keydown',key);
+    return ()=>{running=false;cancelAnimationFrame(raf);ro.disconnect();
+      canvas.removeEventListener('pointerdown',down);
+      canvas.removeEventListener('pointermove',move);
+      canvas.removeEventListener('pointerup',up);
+      canvas.removeEventListener('dblclick',dbl);
+      canvas.removeEventListener('wheel',wheel);
+      window.removeEventListener('keydown',key);};
+  },[]);
+
+  const zoomBtn=(d)=>{const s=S.current;const r=wrapRef.current.getBoundingClientRect();
+    const k2=Math.min(2.6,Math.max(.25,s.view.k*d));const f=k2/s.view.k;
+    s.view={k:k2,x:r.width/2-(r.width/2-s.view.x)*f,y:r.height/2-(r.height/2-s.view.y)*f};};
+  const reCluster=()=>{const s=S.current;s.nodes.forEach(n=>n.pinned=false);s.alpha=1;
+    setPd({board:{...(pdRef.current.board||{}),positions:{}}});flash('Constellation released');};
+  const doSearch=(ev)=>{if(ev.key!=='Enter')return;
+    const t=q.trim().toLowerCase();if(!t)return;
+    const hit=entities.find(e=>e.name.toLowerCase().includes(t));
+    if(hit)focusNode(hit.id);else flash('No star by that name');};
+
+  const saveQuick=(ent)=>{
+    const exists=pdRef.current.entities.some(e=>e.id===ent.id);
+    setPd({entities:exists?pdRef.current.entities.map(e=>e.id===ent.id?ent:e):[...pdRef.current.entities,ent]});
+    if(pendingPos.current){
+      const pos={...((pdRef.current.board||{}).positions||{})};
+      pos[ent.id]={x:Math.round(pendingPos.current.x),y:Math.round(pendingPos.current.y)};
+      setPd({board:{...(pdRef.current.board||{}),positions:pos}});
+      pendingPos.current=null;
+    }
+    setEditing(null);flash('Added to the Codex');
+  };
+  const byId=useMemo(()=>Object.fromEntries(entities.map(e=>[e.id,e])),[entities]);
+  const inspected=inspect?byId[inspect]:null;
+
+  return (
+    <div className="gal-wrap" ref={wrapRef}>
+      <canvas ref={canvasRef}/>
+
+      <div className="hud tl">
+        <div className="hsearch"><span style={{color:'var(--faint)',fontSize:12}}>⌕</span>
+          <input placeholder="Find a star…" value={q} onChange={e=>setQ(e.target.value)} onKeyDown={doSearch}/></div>
+        <button className={'hbtn'+(linkMode?' on':'')} onClick={()=>{setLinkMode(v=>!v);S.current.linkFrom=null;setLinkFromUi(null);}}>⟡ Bind</button>
+      </div>
+      <div className="hud tr">
+        <button className="hbtn" onClick={()=>zoomBtn(.88)}>−</button>
+        <button className="hbtn" onClick={()=>zoomBtn(1.14)}>＋</button>
+        <button className="hbtn" onClick={()=>S.current.fit&&S.current.fit()}>Fit</button>
+        <button className="hbtn" onClick={reCluster} title="Unpin everything and let the constellation settle">Release</button>
+      </div>
+      {linkMode && <div className="gal-note">{linkFromUi?'Now click the second star to bind':'Click two stars to bind them · Esc to stop'}</div>}
+
+      <div className="hud bl">
+        {Object.entries(ENTITY_TYPES).map(([k,T])=>{
+          const n=entities.filter(e=>e.type===k).length;if(!n)return null;
+          const off=hidden[k];
+          return <span key={k} className="lchip" onClick={()=>setHidden(h=>({...h,[k]:!h[k]}))}
+            style={{color:off?'var(--faint)':T.color,borderColor:off?'var(--hair2)':T.color+'66',opacity:off?.55:1}}>
+            {T.g} {T.plural} {n}</span>;
+        })}
+      </div>
+
+      {entities.length===0 &&
+        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none'}}>
+          <div className="empty" style={{pointerEvents:'auto'}}>
+            <div className="glyph">✦</div>
+            <div style={{maxWidth:330}}>An empty sky. Add entries in the Codex — or double-click anywhere here to place your first star.</div>
+          </div>
+        </div>}
+
+      {edgePop && byId[edgePop.from] && (
+        <div className="epop" style={{left:edgePop.sx,top:edgePop.sy,transform:'translate(-50%,-130%)'}} onPointerDown={e=>e.stopPropagation()}>
+          <span className="muted" style={{fontSize:11,maxWidth:86,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{byId[edgePop.from].name} →</span>
+          <input autoFocus defaultValue={relations[edgePop.from+'|'+edgePop.to]||''} placeholder="name this bond…"
+            onChange={e=>setRelation(edgePop.from+'|'+edgePop.to,e.target.value)}
+            style={{width:140,padding:'5px 9px',fontSize:12.5}}/>
+          <button className="btn sm danger" title="Remove connection" onClick={()=>removeLink(edgePop.from,edgePop.to)}>✕</button>
+          <span className="x" style={{fontSize:16}} onClick={()=>setEdgePop(null)}>×</span>
+        </div>)}
+
+      {quickAdd && (
+        <div className="qadd" style={{left:Math.min(quickAdd.sx, (wrapRef.current?.clientWidth||400)-180),top:Math.min(quickAdd.sy,(wrapRef.current?.clientHeight||400)-260)}}>
+          <div style={{fontFamily:'var(--mono)',fontSize:9,letterSpacing:1.6,color:'var(--faint)',textTransform:'uppercase',padding:'5px 11px 3px'}}>Place a new star</div>
+          {Object.entries(ENTITY_TYPES).map(([k,T])=>(
+            <div key={k} className="qi" onClick={()=>{
+              pendingPos.current={x:quickAdd.wx,y:quickAdd.wy};
+              setEditing({id:uid(),type:k,name:'',fields:{},tags:[],links:[],notes:'',createdAt:now()});
+              setQuickAdd(null);}}>
+              <span style={{color:T.color,width:15,textAlign:'center'}}>{T.g}</span>{T.label}
+            </div>))}
+        </div>)}
+
+      {inspected && (
+        <div className="inspector">
+          <div style={{padding:'16px 18px',borderBottom:'1px solid var(--hair)',display:'flex',alignItems:'center',gap:10}}>
+            <span className="chip" style={{color:ENTITY_TYPES[inspected.type].color,borderColor:ENTITY_TYPES[inspected.type].color+'55'}}>
+              {ENTITY_TYPES[inspected.type].g} {ENTITY_TYPES[inspected.type].label}</span>
+            <div style={{flex:1}}/>
+            <button className="btn sm" onClick={()=>setEditing(inspected)}>Edit</button>
+            <span className="x" onClick={()=>setInspect(null)}>×</span>
+          </div>
+          <InspectorBody ent={inspected} entities={entities} relations={relations} onFocus={focusNode}/>
+        </div>)}
+
+      {editing &&
+        <EntityEditor ent={editing} entities={entities}
+          onSave={saveQuick} onClose={()=>{setEditing(null);pendingPos.current=null;}}
+          onDelete={entities.some(e=>e.id===editing.id)?()=>{
+            const id=editing.id;
+            setPd({entities:pdRef.current.entities.filter(x=>x.id!==id).map(x=>({...x,links:(x.links||[]).filter(l=>l!==id)}))});
+            setEditing(null);setInspect(null);flash('Entry removed');}:null}/>}
+    </div>
+  );
+}
+function InspectorBody({ent,entities,relations,onFocus}){
+  const url=useImageURL(ent.imageId);
+  const F=ent.fields||{};
+  const T=ENTITY_TYPES[ent.type];
+  const out=(ent.links||[]).map(id=>entities.find(e=>e.id===id)).filter(Boolean);
+  const inn=entities.filter(o=>(o.links||[]).includes(ent.id));
+  const firstFields=T.fields.filter(f=>F[f]).slice(0,3);
+  return (
+    <div style={{padding:18}}>
+      {url && <img src={url} alt="" style={{width:'100%',height:150,objectFit:'cover',borderRadius:11,marginBottom:14}}/>}
+      <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:24,lineHeight:1.15,marginBottom:10}}>{ent.name}</div>
+      {firstFields.map(f=>(
+        <div key={f} className="field" style={{marginBottom:10}}>
+          <label>{FIELD_LABELS[f]||f}</label>
+          <div style={{fontSize:13.5,whiteSpace:'pre-wrap'}}>{F[f]}</div>
+        </div>))}
+      {ent.notes && <div className="field" style={{marginBottom:10}}><label>Notes</label>
+        <div style={{fontSize:13.5,whiteSpace:'pre-wrap'}}>{ent.notes}</div></div>}
+      {(out.length>0||inn.length>0) && <>
+        <hr className="rule" style={{margin:'14px 0'}}/>
+        <div className="field"><label>Bonds</label></div>
+        {out.map(l=>{const lab=relations[ent.id+'|'+l.id];
+          return <div key={l.id} className="pill" style={{display:'flex',width:'100%'}} onClick={()=>onFocus(l.id)}>
+            <span className="dot" style={{background:ENTITY_TYPES[l.type].color}}/>
+            <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
+            {lab && <span className="muted" style={{fontFamily:'var(--mono)',fontSize:9.5}}>{lab}</span>}
+          </div>;})}
+        {inn.filter(l=>!(ent.links||[]).includes(l.id)).map(l=>(
+          <div key={l.id} className="pill" style={{display:'flex',width:'100%',opacity:.75}} onClick={()=>onFocus(l.id)}>
+            <span className="dot" style={{background:ENTITY_TYPES[l.type].color}}/>
+            <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.name}</span>
+            <span className="muted" style={{fontFamily:'var(--mono)',fontSize:9.5}}>refers here</span>
+          </div>))}
+      </>}
+    </div>
+  );
+}
+
+/* ════════ PLOT ════════ */
+function Plot({ctx}){
+  const {pd,setPd,flash}=ctx;
+  const acts=pd.plot.acts;
+  const setActs=a=>setPd({plot:{...pd.plot,acts:a}});
+  const addAct=()=>setActs([...acts,{id:uid(),title:'New act',chapters:[]}]);
+  const updAct=(id,patch)=>setActs(acts.map(a=>a.id===id?{...a,...patch}:a));
+  const delAct=id=>setActs(acts.filter(a=>a.id!==id));
+  return (
+    <div>
+      <div className="between" style={{marginBottom:16}}>
+        <p className="hint">Acts hold chapters; chapters hold beats. Bind beats to Codex entries to track who appears where.</p>
+        <button className="btn gold" onClick={addAct}>＋ Add act</button>
+      </div>
+      {acts.length===0 && <div className="empty"><div className="glyph">▤</div>No structure yet. Add your first act to begin shaping the journey.</div>}
+      {acts.map((act,i)=><ActBlock key={act.id} act={act} idx={i} updAct={updAct} delAct={delAct} flash={flash} ctx={ctx}/>)}
+    </div>
+  );
+}
+function ActBlock({act,idx,updAct,delAct,ctx}){
+  const [edit,setEdit]=useState(false);
+  const addCh=()=>updAct(act.id,{chapters:[...act.chapters,{id:uid(),title:'New chapter',summary:'',wordTarget:2500,status:'planned',beats:[]}]});
+  const updCh=(cid,patch)=>updAct(act.id,{chapters:act.chapters.map(c=>c.id===cid?{...c,...patch}:c)});
+  const delCh=cid=>updAct(act.id,{chapters:act.chapters.filter(c=>c.id!==cid)});
+  return (
+    <div className="card" style={{marginBottom:16,padding:16}}>
+      <div className="between" style={{marginBottom:12}}>
+        {edit
+          ? <input value={act.title} autoFocus onBlur={()=>setEdit(false)} onKeyDown={e=>e.key==='Enter'&&setEdit(false)} onChange={e=>updAct(act.id,{title:e.target.value})} style={{maxWidth:340,fontFamily:'var(--disp)',fontSize:17}}/>
+          : <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:20,cursor:'pointer'}} onClick={()=>setEdit(true)}>
+              <span style={{color:'var(--gold)',fontFamily:'var(--mono)',fontSize:10,letterSpacing:2,verticalAlign:'.35em',marginRight:10}}>ACT {idx+1}</span>{act.title}</div>}
+        <div className="row" style={{gap:6}}>
+          <button className="btn sm" onClick={addCh}>＋ Chapter</button>
+          <button className="btn sm danger" onClick={()=>delAct(act.id)}>✕</button>
+        </div>
+      </div>
+      {act.chapters.map((ch,ci)=><ChapterBlock key={ch.id} ch={ch} num={ci+1} updCh={updCh} delCh={delCh} ctx={ctx}/>)}
+    </div>
+  );
+}
+function ChapterBlock({ch,num,updCh,delCh,ctx}){
+  const {pd}=ctx;
+  const [open,setOpen]=useState(false);
+  const STATUS={planned:'var(--faint)',drafting:'var(--gold)',revised:'#7cc6a0',done:'#7cc6a0'};
+  const addBeat=()=>updCh(ch.id,{beats:[...ch.beats,{id:uid(),text:'',links:[]}]});
+  const updBeat=(bid,patch)=>updCh(ch.id,{beats:ch.beats.map(b=>b.id===bid?{...b,...patch}:b)});
+  const delBeat=bid=>updCh(ch.id,{beats:ch.beats.filter(b=>b.id!==bid)});
+  const byId=Object.fromEntries(pd.entities.map(e=>[e.id,e]));
+  return (
+    <div style={{background:'rgba(255,255,255,.02)',border:'1px solid var(--hair)',borderRadius:11,padding:'10px 14px',marginBottom:9}}>
+      <div className="between">
+        <div className="row" style={{gap:9,flex:1,cursor:'pointer'}} onClick={()=>setOpen(o=>!o)}>
+          <span style={{color:'var(--faint)',fontSize:11}}>{open?'▾':'▸'}</span>
+          <span className="dot" style={{background:STATUS[ch.status]}}/>
+          <input value={ch.title} onClick={e=>e.stopPropagation()} onChange={e=>updCh(ch.id,{title:e.target.value})} style={{background:'transparent',border:'none',fontFamily:'var(--disp)',fontSize:16,padding:0,maxWidth:320}}/>
+        </div>
+        <span className="muted" style={{fontFamily:'var(--mono)',fontSize:10.5}}>{ch.beats.length} beats</span>
+      </div>
+      {open &&
+        <div style={{marginTop:12,paddingTop:10,borderTop:'1px solid var(--hair)'}}>
+          <div className="row" style={{gap:10,marginBottom:10}}>
+            <select value={ch.status} onChange={e=>updCh(ch.id,{status:e.target.value})} style={{maxWidth:140}}>
+              <option value="planned">Planned</option><option value="drafting">Drafting</option>
+              <option value="revised">Revised</option><option value="done">Done</option>
+            </select>
+            <div className="row" style={{gap:6}}>
+              <span className="muted" style={{fontSize:12}}>Target</span>
+              <input type="number" value={ch.wordTarget} onChange={e=>updCh(ch.id,{wordTarget:+e.target.value})} style={{width:90}}/>
+            </div>
+          </div>
+          <textarea rows={2} placeholder="Chapter summary…" value={ch.summary} onChange={e=>updCh(ch.id,{summary:e.target.value})} style={{marginBottom:10}}/>
+          {ch.beats.map(b=>(
+            <div key={b.id} className="beat">
+              <div className="row" style={{gap:8,alignItems:'flex-start'}}>
+                <textarea rows={1} value={b.text} placeholder="What happens in this beat…" onChange={e=>updBeat(b.id,{text:e.target.value})} style={{background:'transparent',border:'none',padding:0,flex:1}}/>
+                <span className="x" style={{fontSize:15}} onClick={()=>delBeat(b.id)}>×</span>
+              </div>
+              <BeatLinks beat={b} updBeat={updBeat} pd={pd} byId={byId}/>
+            </div>
+          ))}
+          <div className="row" style={{gap:8}}>
+            <button className="btn sm" onClick={addBeat}>＋ Beat</button>
+            <button className="btn sm danger" onClick={()=>delCh(ch.id)}>Delete chapter</button>
+          </div>
+        </div>}
+    </div>
+  );
+}
+function BeatLinks({beat,updBeat,pd,byId}){
+  const [pick,setPick]=useState(false);
+  const linked=(beat.links||[]).map(id=>byId[id]).filter(Boolean);
+  const toggle=id=>updBeat(beat.id,{links:(beat.links||[]).includes(id)?beat.links.filter(l=>l!==id):[...(beat.links||[]),id]});
+  return (
+    <div style={{marginTop:6}}>
+      {linked.map(l=>{const T=ENTITY_TYPES[l.type];return <span key={l.id} className="tag"><span className="dot" style={{background:T.color,width:7,height:7,marginRight:4,display:'inline-block'}}/>{l.name}</span>;})}
+      <span className="tag" style={{cursor:'pointer',borderStyle:'dashed'}} onClick={()=>setPick(p=>!p)}>＋ bind entity</span>
+      {pick &&
+        <div style={{marginTop:6,maxHeight:160,overflowY:'auto',border:'1px solid var(--hair2)',borderRadius:9,padding:6}}>
+          {pd.entities.length===0 && <div className="hint" style={{padding:6}}>No codex entries yet.</div>}
+          {pd.entities.map(o=>{const on=(beat.links||[]).includes(o.id);const T=ENTITY_TYPES[o.type];
+            return <div key={o.id} onClick={()=>toggle(o.id)} style={{display:'flex',gap:8,alignItems:'center',padding:'5px 8px',borderRadius:7,cursor:'pointer',background:on?'rgba(var(--goldRGB),.08)':'transparent'}}>
+              <span style={{width:13,color:'var(--gold2)',fontSize:11}}>{on?'✓':''}</span><span className="dot" style={{background:T.color}}/>{o.name||'(unnamed)'}</div>;})}
+        </div>}
+    </div>
+  );
+}
+
+/* ════════ THREADS ════════ */
+function Threads({ctx}){
+  const {pd,setPd}=ctx;
+  const items=pd.foreshadow;
+  const set=a=>setPd({foreshadow:a});
+  const add=()=>set([...items,{id:uid(),setup:'',payoff:'',planted:false,paid:false,note:''}]);
+  const upd=(id,p)=>set(items.map(i=>i.id===id?{...i,...p}:i));
+  const del=id=>set(items.filter(i=>i.id!==id));
+  return (
+    <div>
+      <div className="between" style={{marginBottom:16}}>
+        <p className="hint">Every seed you plant, tracked to its payoff. Nothing forgotten, nothing dangling.</p>
+        <button className="btn gold" onClick={add}>＋ Thread</button>
+      </div>
+      {items.length===0 && <div className="empty"><div className="glyph">⌇</div>No threads tracked yet.</div>}
+      <div className="grid g2">
+        {items.map(i=>(
+          <div key={i.id} className="card">
+            <div className="field"><label>Setup — the seed</label>
+              <textarea rows={2} value={i.setup} onChange={e=>upd(i.id,{setup:e.target.value})}/></div>
+            <div className="field"><label>Payoff — the harvest</label>
+              <textarea rows={2} value={i.payoff} onChange={e=>upd(i.id,{payoff:e.target.value})}/></div>
+            <div className="row" style={{gap:16}}>
+              <label className="row" style={{gap:6,cursor:'pointer',fontSize:13.5}}><input type="checkbox" style={{width:'auto'}} checked={i.planted} onChange={e=>upd(i.id,{planted:e.target.checked})}/> Planted</label>
+              <label className="row" style={{gap:6,cursor:'pointer',fontSize:13.5}}><input type="checkbox" style={{width:'auto'}} checked={i.paid} onChange={e=>upd(i.id,{paid:e.target.checked})}/> Paid off</label>
+              <span className="x" style={{marginLeft:'auto'}} onClick={()=>del(i.id)}>×</span>
+            </div>
+            {i.planted&&!i.paid && <div className="chip" style={{color:'var(--gold)',borderColor:'rgba(var(--goldRGB),.5)',marginTop:10}}>open thread</div>}
+            {i.planted&&i.paid && <div className="chip" style={{color:'#7cc6a0',borderColor:'rgba(124,198,160,.5)',marginTop:10}}>resolved</div>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════ SYSTEM SCREENS ════════ */
+function Screens({ctx}){
+  const {pd,setPd,flash}=ctx;
+  const items=pd.screens;
+  const set=a=>setPd({screens:a});
+  const add=()=>set([...items,{id:uid(),title:'New screen',body:'╔═══════════════════════╗\n║   SYSTEM NOTIFICATION  ║\n╚═══════════════════════╝\n\n> '}]);
+  const upd=(id,p)=>set(items.map(i=>i.id===id?{...i,...p}:i));
+  const del=id=>set(items.filter(i=>i.id!==id));
+  return (
+    <div>
+      <div className="between" style={{marginBottom:16}}>
+        <p className="hint">Reusable LitRPG interface blocks — status windows, level-ups, skill notices. Copy straight into the manuscript.</p>
+        <button className="btn gold" onClick={add}>＋ Screen</button>
+      </div>
+      {items.length===0 && <div className="empty"><div className="glyph">▣</div>No system screens yet.</div>}
+      {items.map(s=>(
+        <div key={s.id} className="card" style={{marginBottom:14}}>
+          <div className="between" style={{marginBottom:10}}>
+            <input value={s.title} onChange={e=>upd(s.id,{title:e.target.value})} style={{maxWidth:300,fontFamily:'var(--disp)',fontSize:16}}/>
+            <div className="row" style={{gap:6}}>
+              <button className="btn sm" onClick={()=>{navigator.clipboard?.writeText(s.body);flash('Copied to clipboard');}}>Copy</button>
+              <button className="btn sm danger" onClick={()=>del(s.id)}>✕</button>
+            </div>
+          </div>
+          <textarea rows={7} value={s.body} onChange={e=>upd(s.id,{body:e.target.value})} style={{fontFamily:'var(--mono)',fontSize:13,lineHeight:1.55}}/>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ════════ CAPTURE ════════ */
+function Capture({ctx}){
+  const {pd,setPd}=ctx;
+  const [t,setT]=useState('');
+  const items=[...pd.braindump].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  const add=()=>{if(!t.trim())return;setPd({braindump:[...pd.braindump,{id:uid(),text:t.trim(),createdAt:now()}]});setT('');};
+  const del=id=>setPd({braindump:pd.braindump.filter(i=>i.id!==id)});
+  return (
+    <div>
+      <p className="hint" style={{marginBottom:14}}>A plot twist in the shower, a line of dialogue, a name. Catch it before it's gone; sort it later.</p>
+      <div className="row" style={{gap:10,marginBottom:20,alignItems:'flex-start'}}>
+        <textarea rows={2} placeholder="What's the idea? (Ctrl+Enter to keep it)" value={t} onChange={e=>setT(e.target.value)} onKeyDown={e=>(e.key==='Enter'&&(e.ctrlKey||e.metaKey))&&add()}/>
+        <button className="btn gold" onClick={add}>Keep</button>
+      </div>
+      {items.length===0 && <div className="empty"><div className="glyph">✎</div>Nothing captured yet.</div>}
+      <div className="grid g2">
+        {items.map(i=>(
+          <div key={i.id} className="card" style={{padding:14}}>
+            <div className="between" style={{alignItems:'flex-start'}}>
+              <p style={{whiteSpace:'pre-wrap',flex:1}}>{i.text}</p>
+              <span className="x" onClick={()=>del(i.id)}>×</span>
+            </div>
+            <div className="muted" style={{fontFamily:'var(--mono)',fontSize:9.5,marginTop:8}}>{new Date(i.createdAt).toLocaleDateString()}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════ WRITING LOG ════════ */
+function WritingLog({ctx}){
+  const {pd,setPd}=ctx;
+  const [words,setWords]=useState('');
+  const [note,setNote]=useState('');
+  const items=[...pd.log].sort((a,b)=>b.date.localeCompare(a.date));
+  const total=items.reduce((a,l)=>a+(+l.words||0),0);
+  const today=new Date().toISOString().slice(0,10);
+  const todayTotal=items.filter(l=>l.date.slice(0,10)===today).reduce((a,l)=>a+(+l.words||0),0);
+  const add=()=>{if(!words)return;setPd({log:[...pd.log,{id:uid(),date:now(),words:+words,note:note.trim()}]});setWords('');setNote('');};
+  const del=id=>setPd({log:pd.log.filter(l=>l.id!==id)});
+  const days=[...Array(14)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-(13-i));const k=d.toISOString().slice(0,10);
+    return {k,w:items.filter(l=>l.date.slice(0,10)===k).reduce((a,l)=>a+(+l.words||0),0)};});
+  const max=Math.max(1,...days.map(d=>d.w));
+  return (
+    <div>
+      <div className="grid g3" style={{marginBottom:18}}>
+        <div className="stat"><div className="n">{total.toLocaleString()}</div><div className="l">Total words</div></div>
+        <div className="stat"><div className="n">{todayTotal.toLocaleString()}</div><div className="l">Today</div></div>
+        <div className="stat"><div className="n">{items.length}</div><div className="l">Sessions</div></div>
+      </div>
+      <div className="card" style={{marginBottom:18}}>
+        <div className="field" style={{marginBottom:12}}><label>Last 14 days</label></div>
+        <div style={{display:'flex',gap:6,alignItems:'flex-end',height:84}}>
+          {days.map(d=>(
+            <div key={d.k} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:4}} title={`${d.k}: ${d.w} words`}>
+              <div style={{width:'100%',height:`${(d.w/max)*64}px`,minHeight:d.w?3:0,background:'linear-gradient(180deg,var(--gold2),var(--gold))',borderRadius:'3px 3px 0 0',opacity:.9}}/>
+              <span className="muted" style={{fontFamily:'var(--mono)',fontSize:8}}>{d.k.slice(8)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="row" style={{gap:10,marginBottom:20,alignItems:'flex-start'}}>
+        <input type="number" placeholder="Words written" value={words} onChange={e=>setWords(e.target.value)} style={{maxWidth:160}}/>
+        <input placeholder="Note (optional)" value={note} onChange={e=>setNote(e.target.value)}/>
+        <button className="btn gold" onClick={add}>Log session</button>
+      </div>
+      {items.map(l=>(
+        <div key={l.id} className="between" style={{padding:'10px 14px',background:'rgba(255,255,255,.02)',border:'1px solid var(--hair)',borderRadius:10,marginBottom:8}}>
+          <div className="row" style={{gap:14}}>
+            <span style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:18,color:'var(--gold2)'}}>{(+l.words).toLocaleString()}</span>
+            <span className="muted">{new Date(l.date).toLocaleDateString()}</span>
+            {l.note && <span style={{fontStyle:'italic',color:'var(--dim)'}}>{l.note}</span>}
+          </div>
+          <span className="x" onClick={()=>del(l.id)}>×</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ════════ NAME FORGE ════════ */
+function NameForge({ctx}){
+  const {store,flash}=ctx;
+  const [kind,setKind]=useState('character');
+  const [flavor,setFlavor]=useState('grimdark fantasy');
+  const [out,setOut]=useState([]);
+  const [busy,setBusy]=useState(false);
+  const gen=async()=>{
+    if(!store.settings.apiKey){flash('Add your API key in Settings first');return;}
+    setBusy(true);setOut([]);
+    try{
+      const prompt=`Generate 12 evocative ${kind} names for a ${flavor} story. Return ONLY a JSON array of strings, no other text. Example: ["Name One","Name Two"]`;
+      const data=await callClaude(store.settings,[{role:'user',content:prompt}]);
+      const txt=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+      setOut(JSON.parse(txt));
+    }catch(e){flash('Generation failed — check your key');console.warn(e);}
+    setBusy(false);
+  };
+  return (
+    <div>
+      <p className="hint" style={{marginBottom:16}}>Names tuned to your genre. Click any result to copy it.</p>
+      <div className="row" style={{gap:10,marginBottom:18}}>
+        <select value={kind} onChange={e=>setKind(e.target.value)} style={{maxWidth:170}}>
+          {['character','place','faction','item','tavern','spell/skill','title/epithet'].map(k=><option key={k}>{k}</option>)}
+        </select>
+        <input value={flavor} onChange={e=>setFlavor(e.target.value)} placeholder="genre / flavour" style={{maxWidth:240}}/>
+        <button className="btn gold" onClick={gen} disabled={busy}>{busy?'Forging…':'Forge names'}</button>
+      </div>
+      <div className="grid g3">
+        {out.map((n,i)=>(
+          <div key={i} className="card hov" style={{padding:'14px 16px',textAlign:'center'}} onClick={()=>{navigator.clipboard?.writeText(n);flash('Copied: '+n);}}>
+            <span style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:18,color:'var(--gold2)'}}>{n}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ════════ AI COMPANION ════════ */
+function AICompanion({ctx}){
+  const {store,pd,proj,flash,jump,clearJump}=ctx;
+  const [attach,setAttach]=useState(null);
+  useEffect(()=>{
+    if(jump&&jump.type==='discuss'){
+      let ch=null;for(const a of pd.plot.acts){const f=a.chapters.find(x=>x.id===jump.id);if(f){ch=f;break;}}
+      const text=((pd.manuscript||{})[jump.id]||{}).text||'';
+      if(ch)setAttach({chId:ch.id,title:ch.title,text,words:countWords(text)});
+      clearJump();
+    }
+  },[jump]);
+  const [msgs,setMsgs]=useState(()=>{try{return JSON.parse(sessionStorage.getItem('scrip.chat')||'[]');}catch{return [];}});
+  const [input,setInput]=useState('');
+  const [busy,setBusy]=useState(false);
+  const bottomRef=useRef();
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:'smooth'});},[msgs,busy]);
+  useEffect(()=>{try{sessionStorage.setItem('scrip.chat',JSON.stringify(msgs));}catch{}},[msgs]);
+
+  const buildContext=()=>{
+    const ents=pd.entities.map(e=>{
+      const T=ENTITY_TYPES[e.type];
+      const fields=Object.entries(e.fields||{}).filter(([,v])=>v).map(([k,v])=>`${FIELD_LABELS[k]||k}: ${v}`).join('; ');
+      const links=(e.links||[]).map(id=>{const n=pd.entities.find(x=>x.id===id)?.name;if(!n)return null;const lab=(pd.relations||{})[e.id+'|'+id];return lab?`${n} [${lab}]`:n;}).filter(Boolean);
+      return `- [${T.label}] ${e.name}${fields?` — ${fields}`:''}${links.length?` (linked to: ${links.join(', ')})`:''}${e.notes?` Notes: ${e.notes}`:''}`;
+    }).join('\n');
+    const plot=pd.plot.acts.map((a,i)=>`Act ${i+1}: ${a.title}\n`+a.chapters.map((c,ci)=>`  Ch${ci+1} ${c.title} [${c.status}]: ${c.summary}`).join('\n')).join('\n');
+    return `You are a sharp, well-read writing companion for a LitRPG / grimdark / epic fantasy author. You know craft deeply (you've read Dungeon Crawler Carl, The First Law, Cradle, Robin Hobb, Malazan). Be specific, honest, and useful — push back when something's weak. Help with drafting, consistency, plotting, system mechanics, and prose.
+
+CURRENT WORK: "${proj.name}"${proj.desc?` — ${proj.desc}`:''}
+
+CODEX (${pd.entities.length} entries):
+${ents||'(empty)'}
+
+PLOT STRUCTURE:
+${plot||'(none yet)'}${attach?`
+
+CHAPTER UNDER DISCUSSION — "${attach.title}" (${attach.words.toLocaleString()} words). Full prose follows between the markers; treat it as the primary text for this conversation:
+<<<CHAPTER START>>>
+${attach.text.slice(0,60000)}
+<<<CHAPTER END>>>`:''}`;
+  };
+
+  const send=async(preset)=>{
+    const text=(typeof preset==='string'?preset:input).trim();if(!text)return;
+    if(!store.settings.apiKey){flash('Add your API key in Settings first');return;}
+    const next=[...msgs,{role:'user',content:text}];
+    setMsgs(next);setInput('');setBusy(true);
+    try{
+      const data=await callClaude(store.settings,next.map(m=>({role:m.role,content:m.content})),buildContext());
+      const reply=data.content.filter(c=>c.type==='text').map(c=>c.text).join('\n').trim();
+      setMsgs([...next,{role:'assistant',content:reply||'(no response)'}]);
+    }catch(e){setMsgs([...next,{role:'assistant',content:'Could not reach Claude. Check your API key in Settings.'}]);console.warn(e);}
+    setBusy(false);
+  };
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'calc(100vh - 150px)',maxWidth:800,margin:'0 auto'}}>
+      {!store.settings.apiKey &&
+        <div className="card" style={{marginBottom:14,borderColor:'rgba(var(--goldRGB),.5)'}}>
+          <b style={{color:'var(--gold2)'}}>Add your Anthropic API key</b> in Settings (⚿) to wake the companion. It reads your full Codex and plot as context.
+        </div>}
+      <div style={{flex:1,overflowY:'auto',padding:'4px 2px'}}>
+        {msgs.length===0 &&
+          <div className="empty"><div className="glyph">✧</div>
+            <div style={{maxWidth:420,margin:'0 auto'}}>The companion knows your whole world. Ask it to draft a scene, check a character's consistency, pressure-test the plot, or brainstorm a system mechanic.</div></div>}
+        {msgs.map((m,i)=>(
+          <div key={i} className={'cmsg '+(m.role==='user'?'u':'a')}>
+            <div className="bub">{m.content}</div>
+          </div>
+        ))}
+        {busy && <div className="cmsg a"><div className="bub"><div className="dots"><span/><span/><span/></div></div></div>}
+        <div ref={bottomRef}/>
+      </div>
+      {attach &&
+        <div className="row" style={{gap:6,flexWrap:'wrap',marginTop:8}}>
+          <span className="tag" style={{borderColor:'var(--gold)',color:'var(--gold2)'}}>❧ {attach.title} · {attach.words.toLocaleString()} w
+            <span style={{cursor:'pointer',marginLeft:7,opacity:.7}} onClick={()=>setAttach(null)}>×</span></span>
+          {[['Consistency','Check this chapter against the Codex — flag any consistency errors in names, abilities, timeline, or established facts.'],
+            ['Critique','Critique this chapter honestly: prose, pacing, dialogue, and where it drags or rings false. Be specific.'],
+            ['Threads','Which foreshadowing threads does this chapter touch, pay off, or set up? What should it be seeding that it isn\'t?'],
+            ['Summarise','Summarise what happens in this chapter and what changes by the end — state, relationships, stakes.']]
+            .map(([l,pr])=>(
+            <button key={l} className="btn sm" disabled={busy} onClick={()=>send(pr)}>{l}</button>
+          ))}
+        </div>}
+      <div className="row" style={{gap:10,alignItems:'flex-end',marginTop:10}}>
+        <textarea rows={1} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!e.shiftKey&&(e.preventDefault(),send())} placeholder={attach?`Ask anything about “${attach.title}”… (Enter to send)`:"Draft, brainstorm, check consistency… (Enter to send)"}/>
+        <button className="btn gold" onClick={send} disabled={busy||!input.trim()}>Send</button>
+        {msgs.length>0 && <button className="btn ghost" onClick={()=>{setMsgs([]);sessionStorage.removeItem('scrip.chat');}}>Clear</button>}
+      </div>
+    </div>
+  );
+}
+
+/* ════════ IMPORT ════════ */
+function chunkText(t,size){
+  const paras=t.split(/\n\s*\n/);const out=[];let cur='';
+  for(const p of paras){
+    if((cur+'\n\n'+p).length>size){ if(cur)out.push(cur); cur=p; }
+    else cur+=(cur?'\n\n':'')+p;
+  }
+  if(cur)out.push(cur);
+  const re=new RegExp('[\\s\\S]{1,'+size+'}','g');
+  return out.flatMap(c=>c.length>size?(c.match(re)||[c]):[c]);
+}
+function salvageJSON(raw){
+  try{return JSON.parse(raw);}catch(e){}
+  const start=raw.indexOf('[');
+  if(start>=0){
+    const last=raw.lastIndexOf('}');
+    if(last>start){try{return JSON.parse('{"entities":'+raw.slice(start,last+1)+']}');}catch(e){}}
+  }
+  throw new Error('Unparseable JSON');
+}
+async function extractEntities(settings,text){
+  const schema=Object.entries(ENTITY_TYPES).map(([k,T])=>`  "${k}": ${T.fields.join(', ')}`).join('\n');
+  const prompt=`You extract story elements from fiction for a writer's world bible. Read the text and return every notable element.
+
+Return ONLY valid JSON — no preamble, no markdown fences — in exactly this shape:
+{"entities":[{"type":"...","name":"...","fields":{...},"notes":"1-2 sentence summary","tags":[],"links":["names of other elements this connects to"]}]}
+
+Valid types and the fields to fill where the text supports them:
+${schema}
+
+Rules:
+- Only include elements actually in the text. Never invent.
+- Use each element's proper name; merge duplicates and aliases under one entry.
+- Fill only fields the text supports; keep values concise.
+- "links" must reference the NAMES of other elements you are also returning (e.g. a character's home location, the faction they serve).
+
+TEXT:
+"""${text}"""`;
+  const data=await callClaude(settings,[{role:'user',content:prompt}],null,4000);
+  const raw=data.content.filter(c=>c.type==='text').map(c=>c.text).join('').replace(/```json|```/g,'').trim();
+  const parsed=salvageJSON(raw);
+  return (parsed.entities||[]).filter(e=>e&&e.name&&ENTITY_TYPES[e.type]);
+}
+function mergeExtracted(all,incoming){
+  const map={};all.forEach(e=>map[e.name.toLowerCase()]=e);
+  incoming.forEach(e=>{
+    const k=e.name.toLowerCase();
+    if(map[k]){
+      const ex=map[k];
+      ex.fields={...(e.fields||{}),...(ex.fields||{})};
+      if(!ex.notes&&e.notes)ex.notes=e.notes;
+      ex.tags=[...new Set([...(ex.tags||[]),...(e.tags||[])])];
+      ex.links=[...new Set([...(ex.links||[]),...(e.links||[])])];
+    }else{map[k]=e;all.push(e);}
+  });
+  return all;
+}
+function ImportTab({ctx}){
+  const {store,pd,setPd,flash}=ctx;
+  const [text,setText]=useState('');
+  const [fileName,setFileName]=useState('');
+  const [busy,setBusy]=useState(false);
+  const [progress,setProgress]=useState('');
+  const [results,setResults]=useState(null);
+  const fileRef=useRef();
+
+  const onFile=async(e)=>{
+    const f=e.target.files[0];if(!f)return;
+    setFileName(f.name);setResults(null);
+    try{
+      if(f.name.toLowerCase().endsWith('.docx')){
+        const buf=await f.arrayBuffer();
+        const r=await window.mammoth.extractRawText({arrayBuffer:buf});
+        setText(r.value);flash('Loaded '+f.name);
+      }else{
+        setText(await f.text());flash('Loaded '+f.name);
+      }
+    }catch(err){flash('Could not read that file');console.warn(err);}
+  };
+  const run=async()=>{
+    if(!store.settings.apiKey){flash('Add your API key in Settings first');return;}
+    if(!text.trim()){flash('Paste text or choose a file first');return;}
+    setBusy(true);setResults(null);
+    try{
+      const chunks=chunkText(text,14000);
+      let all=[];
+      for(let i=0;i<chunks.length;i++){
+        setProgress(`Reading section ${i+1} of ${chunks.length}…`);
+        try{const ents=await extractEntities(store.settings,chunks[i]);all=mergeExtracted(all,ents);}
+        catch(err){console.warn('chunk failed',err);}
+      }
+      const existing=new Set(pd.entities.map(e=>e.name.toLowerCase()));
+      const rows=all.map(en=>({entity:en,dupe:existing.has((en.name||'').toLowerCase()),checked:!existing.has((en.name||'').toLowerCase())}));
+      rows.sort((a,b)=>a.entity.type.localeCompare(b.entity.type));
+      setResults(rows);setProgress('');
+      if(rows.length===0)flash('No elements found in that text');
+    }catch(err){flash('Extraction failed — check your key');console.warn(err);}
+    setBusy(false);
+  };
+  const toggle=i=>setResults(rs=>rs.map((r,j)=>j===i?{...r,checked:!r.checked}:r));
+  const setAll=v=>setResults(rs=>rs.map(r=>({...r,checked:v})));
+  const doImport=()=>{
+    const chosen=results.filter(r=>r.checked).map(r=>r.entity);
+    if(chosen.length===0){flash('Nothing selected');return;}
+    const created=chosen.map(en=>({id:uid(),type:en.type,name:en.name,fields:en.fields||{},tags:en.tags||[],links:[],notes:en.notes||'',createdAt:now()}));
+    const nameMap={};
+    [...pd.entities,...created].forEach(e=>{nameMap[e.name.toLowerCase()]=e.id;});
+    created.forEach((e,idx)=>{
+      const src=chosen[idx];
+      const ln=(src.links||[]).map(n=>nameMap[(n||'').toLowerCase()]).filter(id=>id&&id!==e.id);
+      e.links=[...new Set(ln)];
+    });
+    setPd({entities:[...pd.entities,...created]});
+    flash(`Added ${created.length} entr${created.length===1?'y':'ies'} to the Codex`);
+    setResults(null);setText('');setFileName('');
+  };
+  const chosenCount=results?results.filter(r=>r.checked).length:0;
+
+  return (
+    <div>
+      <p className="hint" style={{marginBottom:16}}>Feed in a chapter, manuscript or story bible. Scriptorium reads it and surfaces the characters, places, factions, items, lore and events — with the bonds between them — for your review before anything joins the Codex.</p>
+      {!store.settings.apiKey &&
+        <div className="card" style={{marginBottom:16,borderColor:'rgba(var(--goldRGB),.5)'}}>
+          <b style={{color:'var(--gold2)'}}>Add your Anthropic API key</b> in Settings (⚿) — extraction reads through Claude.
+        </div>}
+      <div className="card" style={{marginBottom:18}}>
+        <div className="row" style={{gap:10,marginBottom:12}}>
+          <button className="btn" onClick={()=>fileRef.current.click()}>Choose file (.txt · .md · .docx)</button>
+          {fileName && <span className="muted">{fileName}</span>}
+          <input ref={fileRef} type="file" accept=".txt,.md,.markdown,.docx,text/plain" style={{display:'none'}} onChange={onFile}/>
+        </div>
+        <textarea rows={8} placeholder="…or paste your text here" value={text} onChange={e=>setText(e.target.value)}/>
+        <div className="between" style={{marginTop:12}}>
+          <span className="muted" style={{fontSize:13}}>{text?`${text.length.toLocaleString()} characters`:'No text yet'}</span>
+          <button className="btn gold" onClick={run} disabled={busy||!text.trim()}>{busy?(progress||'Reading…'):'Extract elements'}</button>
+        </div>
+      </div>
+      {busy && <div className="empty"><div className="dots"><span/><span/><span/></div><div style={{marginTop:12}}>{progress||'Reading the document…'}</div></div>}
+      {results && results.length>0 && !busy &&
+        <div>
+          <div className="between" style={{marginBottom:12}}>
+            <div className="h3" style={{fontSize:17}}>Found {results.length} element{results.length===1?'':'s'} · {chosenCount} selected</div>
+            <div className="row" style={{gap:8}}>
+              <button className="btn sm" onClick={()=>setAll(true)}>Select all</button>
+              <button className="btn sm" onClick={()=>setAll(false)}>None</button>
+            </div>
+          </div>
+          <div className="grid g2" style={{marginBottom:18}}>
+            {results.map((r,i)=>{
+              const T=ENTITY_TYPES[r.entity.type];
+              return (
+                <div key={i} className="card" style={{padding:14,cursor:'pointer',borderColor:r.checked?'rgba(var(--goldRGB),.5)':'var(--hair)',opacity:r.checked?1:.55}} onClick={()=>toggle(i)}>
+                  <div className="row" style={{gap:9,alignItems:'flex-start'}}>
+                    <span style={{color:r.checked?'var(--gold2)':'var(--faint)',fontSize:14,marginTop:2}}>{r.checked?'◉':'○'}</span>
+                    <div style={{flex:1}}>
+                      <div className="between">
+                        <span className="chip" style={{color:T.color,borderColor:T.color+'55'}}>{T.g} {T.label}</span>
+                        {r.dupe && <span className="chip" style={{color:'var(--ember)',borderColor:'rgba(207,107,78,.5)'}}>already in codex</span>}
+                      </div>
+                      <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:18,margin:'6px 0 2px'}}>{r.entity.name}</div>
+                      {r.entity.notes && <p className="muted" style={{fontSize:13.5}}>{r.entity.notes}</p>}
+                      {(r.entity.links||[]).length>0 && <div className="hint" style={{marginTop:6}}>⟡ {r.entity.links.join(', ')}</div>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="row" style={{gap:10,justifyContent:'flex-end'}}>
+            <button className="btn" onClick={()=>setResults(null)}>Discard</button>
+            <button className="btn gold" onClick={doImport} disabled={chosenCount===0}>Add {chosenCount} to Codex</button>
+          </div>
+          <p className="hint" style={{marginTop:10}}>Duplicates start unticked. Ticking one adds a second entry — useful for a different character with the same name; otherwise leave it off.</p>
+        </div>}
+    </div>
+  );
+}
+
+/* ════════ GALLERY ════════ */
+function Gallery({ctx}){
+  const {pd,setPd,flash}=ctx;
+  const items=pd.gallery||[];
+  const add=rec=>setPd({gallery:[...items,{id:rec.id,caption:''}]});
+  const setCap=(id,caption)=>setPd({gallery:items.map(g=>g.id===id?{...g,caption}:g)});
+  const del=(id)=>{idbDelete(id);imgCache.delete(id);setPd({gallery:items.filter(g=>g.id!==id)});};
+  return (
+    <div>
+      <p className="hint" style={{marginBottom:16}}>Reference art, maps, sketches, inspiration — anything visual not tied to one entry. Stored on this device; included in backups.</p>
+      <div style={{maxWidth:500,marginBottom:20}}><ImagePicker onAdd={add} flash={flash}/></div>
+      {items.length===0
+        ? <div className="empty"><div className="glyph">▦</div>No images yet. Add inspiration above.</div>
+        : <div className="grid g3">{items.map(g=><GalleryCard key={g.id} g={g} setCap={setCap} del={del}/>)}</div>}
+    </div>
+  );
+}
+function GalleryCard({g,setCap,del}){
+  const url=useImageURL(g.id);
+  return (
+    <div className="card" style={{padding:10}}>
+      <div style={{position:'relative'}}>
+        {url
+          ? <img src={url} alt="" style={{width:'100%',borderRadius:9,display:'block'}}/>
+          : <div style={{height:150,background:'rgba(255,255,255,.02)',borderRadius:9}}/>}
+        <span className="x" style={{position:'absolute',top:6,right:6,background:'rgba(0,0,0,.55)',borderRadius:7}} onClick={()=>del(g.id)}>×</span>
+      </div>
+      <input placeholder="Caption…" value={g.caption} onChange={e=>setCap(g.id,e.target.value)} style={{marginTop:8,border:'none',background:'transparent',fontSize:13,padding:'4px 2px'}}/>
+    </div>
+  );
+}
+
+/* ════════ API ════════ */
+async function callClaude(settings,messages,system,maxTokens){
+  const body={model:settings.model||'claude-sonnet-4-6',max_tokens:maxTokens||1500,messages};
+  if(system) body.system=system;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok) throw new Error('API '+res.status);
+  return res.json();
+}
+
+/* ════════ MODALS ════════ */
+function ProjectModal({store,upd,flash,close}){
+  const [name,setName]=useState('');
+  const [desc,setDesc]=useState('');
+  const create=()=>{if(!name.trim())return;const id=uid();
+    upd({...store,projects:[...store.projects,{id,name:name.trim(),desc:desc.trim()}],cur:id,data:{...store.data,[id]:defProjectData()}});
+    flash('New work created');close();};
+  const del=(id)=>{if(store.projects.length<=1){flash('Keep at least one work');return;}
+    const ps=store.projects.filter(p=>p.id!==id);const d={...store.data};delete d[id];
+    upd({...store,projects:ps,cur:store.cur===id?ps[0].id:store.cur,data:d});flash('Work deleted');};
+  const rename=(id,n)=>upd({...store,projects:store.projects.map(p=>p.id===id?{...p,name:n}:p)});
+  return (
+    <div className="scrim" onClick={close}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="mhead"><h3>Manage works</h3><span className="x" onClick={close}>×</span></div>
+        <div className="mbody">
+          <div className="field"><label>New work title</label>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. The Tithe — Book One"/></div>
+          <div className="field"><label>Logline (optional)</label>
+            <textarea rows={2} value={desc} onChange={e=>setDesc(e.target.value)}/></div>
+          <button className="btn gold" onClick={create} style={{width:'100%'}}>Create work</button>
+          <hr className="rule"/>
+          <div className="field"><label>Existing works</label></div>
+          {store.projects.map(p=>(
+            <div key={p.id} className="row" style={{gap:8,marginTop:10}}>
+              <CoverBtn p={p} store={store} upd={upd} flash={flash}/>
+              {p.theme && <button className="btn sm" title={p.themeOn!==false?'Colour theme from cover: on':'Colour theme from cover: off'}
+                onClick={()=>upd({...store,projects:store.projects.map(x=>x.id===p.id?{...x,themeOn:x.themeOn===false}:x)})}
+                style={{width:36,color:p.themeOn!==false?'var(--gold2)':'var(--faint)'}}>✦</button>}
+              <input value={p.name} onChange={e=>rename(p.id,e.target.value)}/>
+              <button className="btn sm danger" onClick={()=>del(p.id)}>✕</button>
+            </div>
+          ))}
+          <p className="hint" style={{marginTop:10}}>The square adds cover art; the ✦ toggles a colour theme drawn from it, retinting the whole app for that book.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsModal({store,upd,flash,close}){
+  const [key,setKey]=useState(store.settings.apiKey);
+  const [model,setModel]=useState(store.settings.model);
+  const fileRef=useRef();
+  const saveSet=()=>{upd({...store,settings:{...store.settings,apiKey:key.trim(),model}});flash('Settings saved');};
+  const exportData=async()=>{
+    let images=[];try{images=await idbAll();}catch(e){}
+    const payload={...store,__images:images};
+    const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`scriptorium-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+    upd({...store,settings:{...store.settings,lastBackup:new Date().toISOString()}});
+    flash(`Backup downloaded${images.length?` (incl. ${images.length} image${images.length===1?'':'s'})`:''}`);
+  };
+  const importData=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=async()=>{try{const d=JSON.parse(r.result);
+      if(Array.isArray(d.__images)){for(const rec of d.__images){try{await idbPut(rec);}catch(_){}}imgCache.clear();}
+      const {__images,...clean}=d;
+      if(clean.projects&&clean.data){upd(clean);flash('Backup restored');close();}else flash('Invalid file');
+    }catch{flash('Could not read file');}};
+    r.readAsText(f);};
+  return (
+    <div className="scrim" onClick={close}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="mhead"><h3>API & backup</h3><span className="x" onClick={close}>×</span></div>
+        <div className="mbody">
+          <div className="field"><label>Anthropic API key</label>
+            <input type="password" value={key} onChange={e=>setKey(e.target.value)} placeholder="sk-ant-…"/>
+            <p className="hint" style={{marginTop:6}}>Stored only on this device. Powers the Companion, Name Forge and Import. Get one at console.anthropic.com.</p></div>
+          <div className="field"><label>Model</label>
+            <select value={model} onChange={e=>setModel(e.target.value)}>
+              <option value="claude-sonnet-5">Claude Sonnet 5 (new — recommended)</option>
+              <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+              <option value="claude-opus-4-8">Claude Opus 4.8 (deepest)</option>
+              <option value="claude-haiku-4-5">Claude Haiku 4.5 (fastest)</option>
+            </select></div>
+          <button className="btn gold" onClick={saveSet} style={{width:'100%'}}>Save settings</button>
+          <hr className="rule"/>
+          <div className="field"><label>Backup</label></div>
+          <p className="hint" style={{margin:'0 0 12px'}}>Everything lives in this browser, images included. Export regularly so you never lose your world.</p>
+          <div className="row" style={{gap:10}}>
+            <button className="btn" onClick={exportData}>Export backup</button>
+            <button className="btn" onClick={()=>fileRef.current.click()}>Import backup</button>
+            <input ref={fileRef} type="file" accept="application/json" style={{display:'none'}} onChange={importData}/>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ════════ v4: MANUSCRIPT ════════ */
+function countWords(t){t=(t||'').trim();return t?t.split(/\s+/).length:0;}
+
+function CoverBtn({p,store,upd,flash}){
+  const url=useImageURL(p.coverId);
+  const ref=useRef();
+  const setCover=id=>upd({...store,projects:store.projects.map(x=>x.id===p.id?{...x,coverId:id}:x)});
+  const handle=async e=>{const f=e.target.files[0];if(!f)return;
+    try{const rec=await storeImageFile(f);
+      const th=await themeFromImage(rec.dataUrl);
+      if(p.coverId){idbDelete(p.coverId);imgCache.delete(p.coverId);}
+      upd({...store,projects:store.projects.map(x=>x.id===p.id?{...x,coverId:rec.id,theme:th,themeOn:th?true:false}:x)});
+      flash(th?'Cover set — colour theme drawn from the art':'Cover set');}
+    catch(err){flash('Could not add that image');console.warn(err);}
+    e.target.value='';};
+  return (
+    <span style={{position:'relative',flexShrink:0}}>
+      <input ref={ref} type="file" accept="image/*" style={{display:'none'}} onChange={handle}/>
+      <button className="btn sm" title={url?'Change cover art':'Add cover art'} onClick={()=>ref.current.click()}
+        style={{width:36,height:36,padding:0,overflow:'hidden',borderColor:url?'var(--gold)':'var(--hair2)'}}>
+        {url?<img src={url} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>:'▦'}
+      </button>
+      {url && <span className="x" title="Remove cover" style={{position:'absolute',top:-8,right:-8,fontSize:12,background:'var(--raise2)',border:'1px solid var(--hair2)',borderRadius:8,padding:'0 4px',lineHeight:'14px'}}
+        onClick={()=>{idbDelete(p.coverId);imgCache.delete(p.coverId);upd({...store,projects:store.projects.map(x=>x.id===p.id?{...x,coverId:null,theme:null}:x)});}}>×</span>}
+    </span>
+  );
+}
+
+function Manuscript({ctx}){
+  const {pd,setPd,flash,proj,setTab,jump,clearJump,setJump}=ctx;
+  const acts=pd.plot.acts;
+  const flat=[];acts.forEach(a=>a.chapters.forEach(ch=>flat.push({act:a,ch})));
+  const ms=pd.manuscript||{};
+  const [sel,setSel]=useState(()=>flat[0]?flat[0].ch.id:null);
+  const [draft,setDraft]=useState(()=>{const f=flat[0];return f&&(pd.manuscript||{})[f.ch.id]?(pd.manuscript[f.ch.id].text||''):'';});
+  const [focus,setFocus]=useState(false);
+  const [refEnt,setRefEnt]=useState(null);
+  const [sprint,setSprint]=useState(null);
+  const [,setTick]=useState(0);
+
+  const live=useRef({});
+  live.current={sel,draft,ms,pd,setPd,flat};
+
+  const commit=useCallback(()=>{
+    const l=live.current;
+    if(!l.sel)return;
+    const cur=(l.ms[l.sel]||{}).text||'';
+    if(l.draft===cur)return;
+    try{
+      const today=new Date().toISOString().slice(0,10);
+      let map={};try{map=JSON.parse(localStorage.getItem('scriptorium.autosnap')||'{}');}catch(e){}
+      if(map[l.sel]!==today){
+        map[l.sel]=today;localStorage.setItem('scriptorium.autosnap',JSON.stringify(map));
+        if(cur.trim())snapPut({id:uid(),chId:l.sel,text:cur,words:countWords(cur),at:now()})
+          .then(async()=>{const all=await snapList(l.sel);for(const s of all.slice(6))await snapDel(s.id);}).catch(()=>{});
+      }
+    }catch(e){}
+    l.setPd({manuscript:{...l.ms,[l.sel]:{text:l.draft,updated:now()}},lastTouched:{chId:l.sel,at:now()}});
+  },[]);
+
+  useEffect(()=>{const t=setTimeout(commit,600);return()=>clearTimeout(t);},[draft]);
+
+  const editorRef=useRef();
+  const [reading,setReading]=useState(false);
+  const speak=()=>{
+    if(reading){window.speechSynthesis.cancel();setReading(false);return;}
+    const ta=editorRef.current;
+    let text=draft;
+    if(ta&&ta.selectionStart>0&&ta.selectionStart<draft.length-1)text=draft.slice(ta.selectionStart);
+    if(!text.trim()){flash('Nothing to read yet');return;}
+    const voices=window.speechSynthesis.getVoices();
+    const v=voices.find(x=>/^en/.test(x.lang)&&/Samantha|Daniel|Karen|Serena|Moira/.test(x.name))||voices.find(x=>/^en/.test(x.lang));
+    const parts=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    let remaining=parts.length;
+    window.speechSynthesis.cancel();
+    parts.forEach(pt=>{
+      const u=new SpeechSynthesisUtterance(pt);
+      u.rate=.95;if(v)u.voice=v;
+      u.onend=u.onerror=()=>{remaining--;if(remaining<=0)setReading(false);};
+      window.speechSynthesis.speak(u);
+    });
+    setReading(true);
+  };
+  useEffect(()=>()=>window.speechSynthesis.cancel(),[]);
+
+  const selectCh=id=>{
+    window.speechSynthesis.cancel();setReading(false);
+    commit();
+    setSel(id);
+    const m=(live.current.pd.manuscript||{})[id];
+    setDraft(id===live.current.sel?live.current.draft:(m?m.text||'':''));
+    setRefEnt(null);
+  };
+
+  useEffect(()=>{if(jump&&jump.type==='chapter'){selectCh(jump.id);clearJump();}},[jump]);
+
+  const liveTotal=flat.reduce((a,f)=>a+(f.ch.id===sel?countWords(draft):countWords((ms[f.ch.id]||{}).text)),0);
+  const base=useRef(null);
+  useEffect(()=>{
+    base.current=live.current.flat.reduce((a,f)=>a+(f.ch.id===live.current.sel?countWords(live.current.draft):countWords((live.current.ms[f.ch.id]||{}).text)),0);
+    return ()=>{
+      commit();
+      const l=live.current;
+      const tot=l.flat.reduce((a,f)=>a+(f.ch.id===l.sel?countWords(l.draft):countWords((l.ms[f.ch.id]||{}).text)),0);
+      const d=tot-base.current;
+      if(d>0)l.setPd({log:[...l.pd.log,{id:uid(),date:now(),words:d,note:'Manuscript session'}]});
+    };
+  },[]);
+  const sessionDelta=base.current==null?0:liveTotal-base.current;
+
+  useEffect(()=>{if(!sprint)return;
+    const t=setInterval(()=>{
+      setTick(x=>x+1);
+      if(Date.now()>=sprint.end){
+        const l=live.current;
+        const tot=l.flat.reduce((a,f)=>a+(f.ch.id===l.sel?countWords(l.draft):countWords((l.ms[f.ch.id]||{}).text)),0);
+        flash(`Sprint complete — ${Math.max(0,tot-sprint.startWords).toLocaleString()} words`);
+        setSprint(null);
+      }
+    },1000);
+    return()=>clearInterval(t);
+  },[sprint]);
+  const fmtSprint=()=>{if(!sprint)return '';const s=Math.max(0,Math.ceil((sprint.end-Date.now())/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+  const startSprint=m=>{setSprint({end:Date.now()+m*60000,startWords:liveTotal,mins:m});flash(`${m}-minute sprint begun`);};
+
+  useEffect(()=>{if(!focus)return;const h=e=>{if(e.key==='Escape')setFocus(false);};window.addEventListener('keydown',h);return()=>window.removeEventListener('keydown',h);},[focus]);
+
+  const mentions=useMemo(()=>{
+    if(!draft)return[];
+    const low=draft.toLowerCase();
+    return pd.entities.filter(e=>e.name&&e.name.length>2&&low.includes(e.name.toLowerCase())).slice(0,12);
+  },[draft,pd.entities]);
+
+  const compile=()=>{
+    let out=`# ${proj.name}\n`;let n=0;
+    acts.forEach(a=>{
+      out+=`\n\n## ${a.title}\n`;
+      a.chapters.forEach(ch=>{n++;
+        const text=ch.id===sel?draft:((ms[ch.id]||{}).text||'');
+        out+=`\n### ${n}. ${ch.title}\n\n${text}\n`;});
+    });
+    const blob=new Blob([out],{type:'text/markdown'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`${(proj.name||'manuscript').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').toLowerCase()||'manuscript'}.md`;a.click();
+    flash('Manuscript compiled to Markdown');
+  };
+
+  const [snaps,setSnaps]=useState(null);
+  const [showPanel,setShowPanel]=useState(true);
+  const [lightbox,setLightbox]=useState(null);
+  const patchCh=(chId,patch)=>setPd({plot:{...pd.plot,acts:acts.map(a=>({...a,chapters:a.chapters.map(x=>x.id===chId?{...x,...patch}:x)}))}});
+  const addChapter=actId=>{
+    const chId=uid();
+    setPd({plot:{...pd.plot,acts:acts.map(a=>a.id===actId?{...a,chapters:[...a.chapters,{id:chId,title:'Chapter '+(flat.length+1),summary:'',wordTarget:2500,status:'drafting',beats:[]}]}:a)}});
+    selectCh(chId);setDraft('');
+  };
+  const addAct=()=>{
+    setPd({plot:{...pd.plot,acts:[...acts,{id:uid(),title:'Act '+(acts.length+1),chapters:[]}]}});
+  };
+  const addChImages=async e=>{
+    if(!sel)return;
+    const files=[...e.target.files];e.target.value='';
+    const ids=[];
+    for(const f of files){try{const rec=await storeImageFile(f);ids.push(rec.id);}catch(err){flash('Could not add an image');}}
+    if(ids.length){
+      const cur=live.current.flat.find(x=>x.ch.id===sel);
+      patchCh(sel,{imageIds:[...((cur&&cur.ch.imageIds)||[]),...ids]});
+      flash(ids.length+(ids.length===1?' image added':' images added'));
+    }
+  };
+  const delChImage=id=>{
+    idbDelete(id);imgCache.delete(id);
+    const cur2=flat.find(x=>x.ch.id===sel);
+    patchCh(sel,{imageIds:((cur2&&cur2.ch.imageIds)||[]).filter(x=>x!==id)});
+  };
+  const openSnaps=async()=>{commit();try{setSnaps(await snapList(sel));}catch(e){flash('Snapshots unavailable');console.warn(e);}};
+  const saveSnap=async()=>{
+    try{
+      await snapPut({id:uid(),chId:sel,text:draft,words:countWords(draft),at:now()});
+      const all=await snapList(sel);
+      for(const s of all.slice(6))await snapDel(s.id);
+      setSnaps(await snapList(sel));flash('Snapshot saved');
+    }catch(e){flash('Could not save snapshot');console.warn(e);}
+  };
+  const restoreSnap=async s=>{
+    try{
+      await snapPut({id:uid(),chId:sel,text:draft,words:countWords(draft),at:now()});
+      setDraft(s.text);
+      const all=await snapList(sel);
+      for(const x of all.slice(6))await snapDel(x.id);
+      setSnaps(null);flash('Snapshot restored — previous version was snapshotted too');
+    }catch(e){flash('Could not restore');console.warn(e);}
+  };
+  const delSnap=async s=>{try{await snapDel(s.id);setSnaps(await snapList(sel));}catch(e){}};
+
+  const quickStart=()=>{
+    const chId=uid();
+    setPd({plot:{...pd.plot,acts:[...acts,{id:uid(),title:'Act I',chapters:[{id:chId,title:'Chapter 1',summary:'',wordTarget:2500,status:'drafting',beats:[]}]}]}});
+    setSel(chId);setDraft('');
+  };
+
+  if(flat.length===0) return (
+    <div className="card" style={{padding:26,marginTop:26}}>
+      <div className="h3" style={{marginBottom:8}}>The manuscript follows your Plot</div>
+      <p className="muted" style={{maxWidth:560,marginBottom:18}}>Chapters you outline in Plot appear here as places to write — beats and structure there, prose here. Set up your acts first, or begin at once with a single chapter.</p>
+      <div className="row">
+        <button className="btn gold" onClick={quickStart}>Start Chapter 1</button>
+        <button className="btn" onClick={()=>setTab('plot')}>Open Plot</button>
+      </div>
+    </div>
+  );
+
+  const cur=flat.find(f=>f.ch.id===sel);
+  const wc=countWords(draft);
+  const mkEditor=big=>(
+    <textarea
+      ref={big?null:editorRef}
+      className={'mseditor'+(big?' big':'')}
+      value={draft}
+      placeholder="Begin…"
+      onChange={e=>setDraft(e.target.value)}
+      onKeyDown={e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();commit();flash('Saved');}}}
+      spellCheck={true}
+      autoFocus={big}
+    />
+  );
+
+  return (
+    <div className="msgrid">
+      <aside className="mslist">
+        {acts.map(a=>(
+          <div key={a.id}>
+            <div className="nsec" style={{padding:'12px 8px 5px'}}>{a.title}</div>
+            {a.chapters.map(ch=>{
+              const w=ch.id===sel?wc:countWords((ms[ch.id]||{}).text);
+              const on=ch.id===sel;
+              const pr=ch.wordTarget?Math.min(1,w/ch.wordTarget):0;
+              return (
+                <div key={ch.id} className={'msitem'+(on?' on':'')} onClick={()=>selectCh(ch.id)}>
+                  <div className="between"><span className="ttl">{ch.title}</span><span className="wc">{w?w.toLocaleString():''}</span></div>
+                  <div className="bar"><div style={{width:(pr*100)+'%'}}/></div>
+                </div>
+              );
+            })}
+            <div className="msadd" onClick={()=>addChapter(a.id)}>＋ chapter</div>
+          </div>
+        ))}
+        <div className="msadd" style={{marginTop:8}} onClick={addAct}>＋ act</div>
+        <div className="hint" style={{padding:'12px 8px',fontStyle:'normal'}}>Beats & reordering live in <span style={{color:'var(--gold)',cursor:'pointer'}} onClick={()=>setTab('plot')}>Plot</span>.</div>
+      </aside>
+
+      <section className="msmain">
+        {cur ? <>
+          <div className="between" style={{marginBottom:6,flexWrap:'wrap',gap:8}}>
+            <div>
+              <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:24,color:'var(--gold2)'}}>{cur.ch.title}</div>
+              <div className="hint" style={{fontStyle:'normal',fontFamily:'var(--mono)',fontSize:10,letterSpacing:1}}>
+                {wc.toLocaleString()} words{cur.ch.wordTarget?` · target ${(+cur.ch.wordTarget).toLocaleString()}`:''}{sessionDelta>0?` · +${sessionDelta.toLocaleString()} this session`:''}
+              </div>
+            </div>
+            <div className="row" style={{gap:6}}>
+              {sprint
+                ? <span className="chip sprint">◍ {fmtSprint()} · +{Math.max(0,liveTotal-sprint.startWords)}</span>
+                : [15,25,45].map(m=><button key={m} className="btn sm" title={`${m}-minute sprint`} onClick={()=>startSprint(m)}>{m}′</button>)}
+              <button className="btn sm" onClick={speak} title={reading?'Stop reading':'Read this chapter aloud (from the cursor, if placed) — hearing prose catches what eyes miss'} style={reading?{color:'var(--gold2)',borderColor:'var(--gold)'}:null}>{reading?'◼ Stop':'▷ Read'}</button>
+              <button className="btn sm" onClick={()=>setShowPanel(v=>!v)} title="Notes, images & codex for this chapter" style={showPanel?{color:'var(--gold2)',borderColor:'var(--gold)'}:null}>▤ Panel</button>
+              <button className="btn sm" onClick={()=>setFocus(true)} title="Distraction-free writing (Esc to leave)">⛶ Focus</button>
+              <button className="btn sm" onClick={()=>{commit();setJump({type:'discuss',id:sel});setTab('ai');}} title="Send this chapter to the Companion">✧ Discuss</button>
+              <button className="btn sm" onClick={openSnaps} title="Save & restore versions of this chapter">⌑ Snapshots</button>
+              <button className="btn sm" onClick={compile} title="Download the full manuscript as Markdown">⇓ Compile</button>
+            </div>
+          </div>
+          {mentions.length>0 &&
+            <div className="row" style={{gap:6,flexWrap:'wrap',marginBottom:8}}>
+              {mentions.map(e=>{const T=ENTITY_TYPES[e.type];return (
+                <span key={e.id} className="tag" style={{cursor:'pointer',borderColor:refEnt&&refEnt.id===e.id?T.color:'var(--hair2)'}} onClick={()=>{setShowPanel(true);setRefEnt(refEnt&&refEnt.id===e.id?null:e);}}>
+                  <span className="dot" style={{background:T.color,width:7,height:7,marginRight:5,display:'inline-block'}}/>{e.name}
+                </span>);})}
+            </div>}
+          {mkEditor(false)}
+        </> : <div className="empty"><div className="glyph">❧</div>Select a chapter to write.</div>}
+      </section>
+
+      {showPanel && cur && (refEnt
+        ? (()=>{const e=pd.entities.find(x=>x.id===refEnt.id)||refEnt;const T=ENTITY_TYPES[e.type];return (
+          <aside className="msref">
+            <div className="between" style={{marginBottom:10}}>
+              <span className="chip" style={{cursor:'pointer'}} onClick={()=>setRefEnt(null)}>‹ Chapter</span>
+              <span className="x" onClick={()=>setRefEnt(null)}>×</span>
+            </div>
+            <span className="chip" style={{color:T.color,borderColor:T.color+'55'}}>{T.g} {T.label}</span>
+            <div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:21,margin:'10px 0 8px'}}>{e.name}</div>
+            {T.fields.map(f=>e.fields&&e.fields[f]?<div key={f} className="field" style={{marginBottom:8}}><label>{FIELD_LABELS[f]}</label><p style={{fontSize:13.5,color:'var(--dim)',lineHeight:1.5}}>{e.fields[f]}</p></div>:null)}
+            {e.notes && <p className="muted" style={{fontSize:13.5}}>{e.notes}</p>}
+            <button className="btn sm" style={{marginTop:12}} onClick={()=>{setJump({type:'entity',id:e.id});setTab('codex');}}>Open in Codex</button>
+          </aside>);})()
+        : <ChapterPanel cur={cur} draft={draft} pd={pd} patchCh={patchCh} mentions={mentions}
+            onPickEnt={setRefEnt} addImages={addChImages} delImage={delChImage} onView={setLightbox}
+            close={()=>setShowPanel(false)}/>)}
+
+      {lightbox && <Lightbox id={lightbox} close={()=>setLightbox(null)}/>}
+
+      {snaps!==null &&
+        <div className="scrim" onClick={()=>setSnaps(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <div className="mhead"><h3>Chapter snapshots</h3><span className="x" onClick={()=>setSnaps(null)}>×</span></div>
+            <div className="mbody">
+              <p className="hint" style={{margin:'0 0 12px'}}>Frozen versions of “{cur?cur.ch.title:''}”, kept on this device. The six most recent are retained.</p>
+              <button className="btn gold" style={{width:'100%',marginBottom:14}} onClick={saveSnap}>⌑ Snapshot current version ({wc.toLocaleString()} words)</button>
+              {snaps.length===0 && <div className="hint" style={{padding:'6px 0'}}>No snapshots yet for this chapter.</div>}
+              {snaps.map(s=>(
+                <div key={s.id} className="between" style={{padding:'9px 12px',background:'rgba(255,255,255,.02)',border:'1px solid var(--hair)',borderRadius:10,marginBottom:8}}>
+                  <div className="row" style={{gap:12}}>
+                    <span style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:16,color:'var(--gold2)'}}>{(+s.words).toLocaleString()} w</span>
+                    <span className="muted" style={{fontSize:12.5}}>{new Date(s.at).toLocaleString()}</span>
+                  </div>
+                  <div className="row" style={{gap:6}}>
+                    <button className="btn sm" onClick={()=>restoreSnap(s)}>Restore</button>
+                    <span className="x" onClick={()=>delSnap(s)}>×</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>}
+
+      {focus &&
+        <div className="msfocus">
+          <div className="inner">
+            <div className="between" style={{marginBottom:14}}>
+              <span className="hint" style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:10,letterSpacing:2,textTransform:'uppercase'}}>{cur?cur.ch.title:''}</span>
+              <span className="hint" style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:10}}>
+                {wc.toLocaleString()} w{sprint?` · ${fmtSprint()}`:''} · esc to leave
+              </span>
+            </div>
+            {mkEditor(true)}
+          </div>
+        </div>}
+    </div>
+  );
+}
+
+
+
+
+/* ════════ v7: RHYTHM ════════ */
+function timeAgo(iso){
+  const s=(Date.now()-Date.parse(iso))/1000;
+  if(isNaN(s))return '';
+  if(s<90)return 'just now';
+  const m=s/60;if(m<90)return Math.round(m)+' min ago';
+  const h=m/60;if(h<36)return Math.round(h)+' hr ago';
+  const d=h/24;if(d<14)return Math.round(d)+' days ago';
+  return new Date(iso).toLocaleDateString();
+}
+function Heatmap({log}){
+  const by={};log.forEach(l=>{const d=(l.date||'').slice(0,10);by[d]=(by[d]||0)+(+l.words||0);});
+  const days=[];
+  const end=new Date();end.setHours(12,0,0,0);
+  const start=new Date(end);start.setDate(start.getDate()-364);
+  while(start.getDay()!==1)start.setDate(start.getDate()-1);
+  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    const k=d.toISOString().slice(0,10);
+    days.push({k,w:by[k]||0});
+  }
+  const lvl=w=>w===0?0:w<300?1:w<800?2:w<1600?3:4;
+  const alpha=[0,.16,.34,.58,.9];
+  return (
+    <div style={{marginTop:14}}>
+      <div className="hint" style={{fontStyle:'normal',fontFamily:'var(--mono)',fontSize:9,letterSpacing:1.8,textTransform:'uppercase',marginBottom:8}}>The last year</div>
+      <div className="heat">
+        {days.map(d=>(
+          <div key={d.k} className="hcell" title={`${d.k} — ${d.w.toLocaleString()} words`}
+            style={d.w?{background:`rgba(var(--goldRGB),${alpha[lvl(d.w)]})`,boxShadow:lvl(d.w)>2?`0 0 5px rgba(var(--goldRGB),.5)`:'none'}:null}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+function PaceCard({proj,store,upd,msWords,log}){
+  const g=proj.goal;
+  const [edit,setEdit]=useState(false);
+  const [w,setW]=useState(g?g.words:120000);
+  const [dt,setDt]=useState(g?g.date:'');
+  const save=()=>{if(!(+w)||!dt)return;upd({...store,projects:store.projects.map(x=>x.id===proj.id?{...x,goal:{words:+w,date:dt}}:x)});setEdit(false);};
+  const clear=()=>{upd({...store,projects:store.projects.map(x=>x.id===proj.id?{...x,goal:null}:x)});setEdit(false);};
+  const trailing=(()=>{
+    const cut=Date.now()-14*86400000;
+    const s=log.filter(l=>Date.parse(l.date)>=cut).reduce((a,l)=>a+(+l.words||0),0);
+    return Math.round(s/14);
+  })();
+  if(edit)return (
+    <div className="row" style={{gap:8,flexWrap:'wrap',alignItems:'flex-end'}}>
+      <div className="field" style={{margin:0}}><label>Target words</label><input type="number" value={w} onChange={e=>setW(e.target.value)} style={{width:120}}/></div>
+      <div className="field" style={{margin:0}}><label>By</label><input type="date" value={dt} onChange={e=>setDt(e.target.value)} style={{width:160}}/></div>
+      <button className="btn gold sm" onClick={save}>Set</button>
+      {g && <button className="btn sm" onClick={clear}>Clear</button>}
+      <button className="btn sm ghost" onClick={()=>setEdit(false)}>Cancel</button>
+    </div>
+  );
+  if(!g)return (
+    <div className="between" style={{flexWrap:'wrap',gap:8}}>
+      <span className="muted" style={{fontSize:13.5}}>Trailing pace: <b style={{color:'var(--gold2)'}}>{trailing.toLocaleString()}</b> words/day over the last fortnight.</span>
+      <button className="btn sm" onClick={()=>setEdit(true)}>Set a target & deadline</button>
+    </div>
+  );
+  const days=Math.max(1,Math.ceil((Date.parse(g.date)-Date.now())/86400000));
+  const remain=Math.max(0,g.words-msWords);
+  const need=Math.ceil(remain/days);
+  const done=remain===0;
+  const ahead=trailing>=need;
+  return (
+    <div>
+      <div className="between" style={{flexWrap:'wrap',gap:8,marginBottom:10}}>
+        <span style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:17,color:done?'var(--gold2)':ahead?'var(--gold2)':'var(--ember)'}}>
+          {done?'Target reached':ahead?'On pace':'Behind pace'}
+        </span>
+        <span className="hint" style={{fontStyle:'normal',cursor:'pointer',color:'var(--gold)'}} onClick={()=>setEdit(true)}>adjust ›</span>
+      </div>
+      {!done &&
+        <div className="grid g4" style={{gap:10}}>
+          {[[remain.toLocaleString(),'words remain'],[days.toLocaleString(),days===1?'day left':'days left'],[need.toLocaleString(),'needed / day'],[trailing.toLocaleString(),'trailing / day']].map(([n,l],i)=>(
+            <div key={i}><div style={{fontFamily:'var(--disp)',fontWeight:500,fontSize:21,color:'var(--gold2)'}}>{n}</div><div className="hint" style={{fontStyle:'normal',fontSize:10.5}}>{l}</div></div>
+          ))}
+        </div>}
+      {done && <p className="muted" style={{fontSize:13.5,margin:0}}>{g.words.toLocaleString()} words by {new Date(g.date).toLocaleDateString()} — met. Set the next mountain when ready.</p>}
+    </div>
+  );
+}
+
+/* ════════ v6: CHAPTER PANEL ════════ */
+function ChapterThumb({id,onView,onDel}){
+  const url=useImageURL(id);
+  if(!url)return <div className="chthumb"/>;
+  return (
+    <div className="chthumb" style={{position:'relative'}}>
+      <img src={url} alt="" onClick={()=>onView(id)}/>
+      <span className="x" style={{position:'absolute',top:2,right:4,fontSize:12,textShadow:'0 1px 3px #000'}} onClick={onDel}>×</span>
+    </div>
+  );
+}
+function Lightbox({id,close}){
+  const url=useImageURL(id);
+  return (
+    <div className="scrim" style={{zIndex:70}} onClick={close}>
+      {url && <img src={url} alt="" style={{maxWidth:'92vw',maxHeight:'90vh',borderRadius:12,border:'1px solid var(--hair2)',boxShadow:'var(--shadow)'}}/>}
+    </div>
+  );
+}
+function ChapterPanel({cur,draft,pd,patchCh,mentions,onPickEnt,addImages,delImage,onView,close}){
+  const ch=cur.ch;
+  const fileRef=useRef();
+  const low=(draft||'').toLowerCase();
+  const presentIds=new Set(mentions.map(e=>e.id));
+  const occur=name=>{
+    try{const re=new RegExp('\\b'+name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi');return ((draft||'').match(re)||[]).length;}
+    catch{return 0;}
+  };
+  const typeOrder=Object.keys(ENTITY_TYPES);
+  const grouped=typeOrder.map(t=>[t,mentions.filter(e=>e.type===t)]).filter(g=>g[1].length);
+  return (
+    <aside className="msref">
+      <div className="between" style={{marginBottom:12}}>
+        <span className="hint" style={{fontFamily:'var(--mono)',fontStyle:'normal',fontSize:9.5,letterSpacing:2,textTransform:'uppercase'}}>This chapter</span>
+        <span className="x" onClick={close}>×</span>
+      </div>
+
+      <div className="field" style={{marginBottom:14}}>
+        <label>Margin notes</label>
+        <textarea rows={5} value={ch.notes||''} placeholder="Fix the timeline here… foreshadow the fall… (never compiled into the manuscript)"
+          onChange={e=>patchCh(ch.id,{notes:e.target.value})} style={{fontSize:13.5}}/>
+      </div>
+
+      <div className="field" style={{marginBottom:14}}>
+        <label className="between" style={{display:'flex'}}>Images
+          <span style={{color:'var(--gold)',cursor:'pointer',letterSpacing:0,textTransform:'none',fontSize:12}} onClick={()=>fileRef.current.click()}>＋ add</span>
+        </label>
+        <input ref={fileRef} type="file" accept="image/*" multiple style={{display:'none'}} onChange={addImages}/>
+        {(ch.imageIds||[]).length===0
+          ? <p className="hint" style={{margin:'4px 0 0'}}>Maps, faces, reference art — kept with this chapter.</p>
+          : <div className="chthumbs">{(ch.imageIds||[]).map(id=><ChapterThumb key={id} id={id} onView={onView} onDel={()=>delImage(id)}/>)}</div>}
+      </div>
+
+      <div className="field">
+        <label>From the Codex</label>
+        {grouped.length===0 && <p className="hint" style={{margin:'4px 0 0'}}>Codex names appearing in the prose will gather here.</p>}
+        {grouped.map(([t,ents])=>{const T=ENTITY_TYPES[t];return (
+          <div key={t} style={{marginBottom:10}}>
+            <div className="hint" style={{fontStyle:'normal',fontFamily:'var(--mono)',fontSize:9,letterSpacing:1.6,textTransform:'uppercase',color:T.color,marginBottom:5}}>{T.g} {T.label}s</div>
+            {ents.map(e=>{
+              const linkedHere=[...new Set([...(e.links||[]),...pd.entities.filter(o=>(o.links||[]).includes(e.id)).map(o=>o.id)])]
+                .filter(id=>presentIds.has(id)&&id!==e.id)
+                .map(id=>pd.entities.find(x=>x.id===id)).filter(Boolean);
+              return (
+                <div key={e.id} className="chent">
+                  <div className="between">
+                    <span className="nm" onClick={()=>onPickEnt(e)}>{e.name}</span>
+                    <span className="ct">×{occur(e.name)}</span>
+                  </div>
+                  {linkedHere.length>0 &&
+                    <div className="row" style={{gap:4,flexWrap:'wrap',marginTop:4}}>
+                      <span className="hint" style={{fontStyle:'normal',fontSize:10.5}}>with</span>
+                      {linkedHere.map(o=>{const OT=ENTITY_TYPES[o.type];return (
+                        <span key={o.id} className="tag" style={{fontSize:10.5,padding:'2px 8px',cursor:'pointer',borderColor:OT.color+'44'}} onClick={()=>onPickEnt(o)}>
+                          <span className="dot" style={{background:OT.color,width:5,height:5,marginRight:4,display:'inline-block'}}/>{o.name}
+                        </span>);})}
+                    </div>}
+                </div>
+              );
+            })}
+          </div>);})}
+      </div>
+    </aside>
+  );
+}
+
+/* ════════ v5: SNAPSHOTS / THEME / RENAME ════════ */
+function RailArt({proj}){
+  const url=useImageURL(proj&&proj.coverId);
+  return (
+    <div className="rail-art">
+      <img src={url||'fairy.jpg'} alt="" style={url?{objectPosition:'50% 28%'}:null}/>
+    </div>
+  );
+}
+
+async function snapPut(rec){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('snapshots','readwrite');t.objectStore('snapshots').put(rec);t.oncomplete=()=>res(rec);t.onerror=()=>rej(t.error);});}
+async function snapList(chId){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('snapshots','readonly');const q=t.objectStore('snapshots').getAll();q.onsuccess=()=>res((q.result||[]).filter(s=>s.chId===chId).sort((a,b)=>b.at.localeCompare(a.at)));q.onerror=()=>rej(q.error);});}
+async function snapDel(id){const db=await idb();return new Promise((res,rej)=>{const t=db.transaction('snapshots','readwrite');t.objectStore('snapshots').delete(id);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);});}
+
+const hexRGB=(r,g,b)=>'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+const hsl2hex=(h,s,l)=>hexRGB(...hsl2rgb(h,s,l));
+function hueFromRGB(str){
+  const [r,g,b]=(str||'').split(',').map(n=>+n/255);
+  if([r,g,b].some(isNaN))return null;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),df=mx-mn;
+  if(df<.001)return 0;
+  let h;
+  if(mx===r)h=60*(((g-b)/df)%6);else if(mx===g)h=60*((b-r)/df+2);else h=60*((r-g)/df+4);
+  return (h+360)%360;
+}
+function hsl2rgb(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12;const a=s*Math.min(l,1-l);
+  const f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
+  return [Math.round(f(0)*255),Math.round(f(8)*255),Math.round(f(4)*255)];}
+async function themeFromImage(dataUrl){
+  try{
+    const img=await loadImageEl(dataUrl);
+    const S=48,cv=document.createElement('canvas');cv.width=S;cv.height=S;
+    const g=cv.getContext('2d');g.drawImage(img,0,0,S,S);
+    const d=g.getImageData(0,0,S,S).data;
+    const buckets={};
+    for(let i=0;i<d.length;i+=4){
+      const r=d[i]/255,gr=d[i+1]/255,b=d[i+2]/255;
+      const mx=Math.max(r,gr,b),mn=Math.min(r,gr,b),l=(mx+mn)/2,df=mx-mn;
+      if(df<.02)continue;
+      const s=df/(1-Math.abs(2*l-1));
+      if(s<.22||l<.14||l>.86)continue;
+      let h;
+      if(mx===r)h=60*(((gr-b)/df)%6);else if(mx===gr)h=60*((b-r)/df+2);else h=60*((r-gr)/df+4);
+      h=(h+360)%360;
+      const k=Math.round(h/15)*15%360;
+      const bk=buckets[k]=buckets[k]||{n:0,s:0};bk.n++;bk.s+=s;
+    }
+    const ranked=Object.entries(buckets).sort((x,y)=>(y[1].n*(y[1].s/y[1].n))-(x[1].n*(x[1].s/x[1].n)));
+    if(!ranked.length)return null;
+    const h=+ranked[0][0];
+    const [r1,g1,b1]=hsl2rgb(h,50,60);
+    const [r2,g2,b2]=hsl2rgb(h,56,76);
+    return {h,a:hexRGB(r1,g1,b1),b:hexRGB(r2,g2,b2),rgb:`${r1},${g1},${b1}`};
+  }catch(e){console.warn('theme extraction failed',e);return null;}
+}
+
+const RENAME_SKIP=new Set(['id','imageId','coverId','type','status','date','updated','at','createdAt','links','positions','board','apiKey','model','theme']);
+function deepRename(obj,re,to){
+  if(typeof obj==='string')return obj.replace(re,to);
+  if(Array.isArray(obj))return obj.map(v=>deepRename(v,re,to));
+  if(obj&&typeof obj==='object'){const o={};for(const [k,v] of Object.entries(obj)){o[k]=RENAME_SKIP.has(k)?v:deepRename(v,re,to);}return o;}
+  return obj;
+}
+function deepCount(obj,re){
+  if(typeof obj==='string'){const m=obj.match(re);return m?m.length:0;}
+  if(Array.isArray(obj))return obj.reduce((a,v)=>a+deepCount(v,re),0);
+  if(obj&&typeof obj==='object')return Object.entries(obj).reduce((a,[k,v])=>a+(RENAME_SKIP.has(k)?0:deepCount(v,re)),0);
+  return 0;
+}
+function RenameModal({ent,ctx,close}){
+  const {pd,setPd,flash}=ctx;
+  const [from,setFrom]=useState(ent.name||'');
+  const [to,setTo]=useState('');
+  const [mc,setMc]=useState(true);
+  const re=useMemo(()=>{
+    const f=from.trim();if(!f)return null;
+    try{return new RegExp('\\b'+f.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b',mc?'g':'gi');}catch{return null;}
+  },[from,mc]);
+  const buckets=useMemo(()=>{
+    if(!re)return [];
+    return [
+      ['Manuscript prose',deepCount(pd.manuscript||{},re)],
+      ['Plot — acts, chapters, beats',deepCount(pd.plot,re)],
+      ['Codex entries',deepCount(pd.entities,re)],
+      ['Threads',deepCount(pd.foreshadow,re)],
+      ['Captures',deepCount(pd.braindump,re)],
+      ['System screens',deepCount(pd.screens,re)],
+      ['Gallery & log notes',deepCount(pd.gallery||[],re)+deepCount(pd.log,re)],
+    ].filter(b=>b[1]>0);
+  },[re,pd]);
+  const total=buckets.reduce((a,b)=>a+b[1],0);
+  const apply=async()=>{
+    if(!re||!to.trim()||total===0)return;
+    const t=to.trim();
+    try{
+      for(const [chId,m] of Object.entries(pd.manuscript||{})){
+        const txt=(m&&m.text)||'';
+        re.lastIndex=0;
+        if(txt&&re.test(txt)){
+          await snapPut({id:uid(),chId,text:txt,words:countWords(txt),at:now()});
+          const all=await snapList(chId);for(const s of all.slice(6))await snapDel(s.id);
+        }
+        re.lastIndex=0;
+      }
+    }catch(e){console.warn('pre-rename snapshot failed',e);}
+    setPd({
+      manuscript:deepRename(pd.manuscript||{},re,t),
+      plot:deepRename(pd.plot,re,t),
+      entities:deepRename(pd.entities,re,t),
+      foreshadow:deepRename(pd.foreshadow,re,t),
+      braindump:deepRename(pd.braindump,re,t),
+      screens:deepRename(pd.screens,re,t),
+      gallery:deepRename(pd.gallery||[],re,t),
+      log:deepRename(pd.log,re,t),
+    });
+    flash(`Renamed ${total.toLocaleString()} occurrence${total===1?'':'s'} — affected chapters snapshotted first`);
+    close();
+  };
+  return (
+    <div className="scrim" onClick={close}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="mhead"><h3>Rename across the book</h3><span className="x" onClick={close}>×</span></div>
+        <div className="mbody">
+          <div className="field"><label>Find (whole word)</label>
+            <input value={from} onChange={e=>setFrom(e.target.value)}/></div>
+          <div className="field"><label>Replace with</label>
+            <input value={to} onChange={e=>setTo(e.target.value)} placeholder="New name…"/></div>
+          <label className="row" style={{gap:8,cursor:'pointer',marginBottom:14,fontSize:13.5,color:'var(--dim)'}}>
+            <input type="checkbox" checked={mc} onChange={e=>setMc(e.target.checked)} style={{width:'auto'}}/>Match case
+          </label>
+          {re && (buckets.length>0
+            ? <div style={{marginBottom:14}}>
+                {buckets.map(([l,n])=>(
+                  <div key={l} className="between" style={{padding:'7px 12px',background:'rgba(255,255,255,.02)',border:'1px solid var(--hair)',borderRadius:9,marginBottom:6}}>
+                    <span className="muted" style={{fontSize:13.5}}>{l}</span>
+                    <span style={{fontFamily:'var(--mono)',fontSize:12,color:'var(--gold2)'}}>{n.toLocaleString()}</span>
+                  </div>
+                ))}
+                <div className="hint" style={{marginTop:8}}>{total.toLocaleString()} occurrence{total===1?'':'s'} will change. Affected chapters are snapshotted automatically before the change lands.</div>
+              </div>
+            : <div className="hint" style={{marginBottom:14}}>No occurrences of “{from.trim()}” found.</div>)}
+          <button className="btn gold" style={{width:'100%'}} disabled={!re||!to.trim()||total===0} onClick={apply}>
+            Rename {total>0?total.toLocaleString():''} occurrence{total===1?'':'s'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════ v4: COMMAND PALETTE ════════ */
+function CmdPalette({ctx,close}){
+  const {pd,setTab,setJump}=ctx;
+  const [q,setQ]=useState('');
+  const [ix,setIx]=useState(0);
+  const inputRef=useRef();
+  useEffect(()=>{inputRef.current&&inputRef.current.focus();},[]);
+  const items=useMemo(()=>{
+    const s=q.trim().toLowerCase();
+    const out=[];
+    TABS.forEach(t=>{if(!s||t.lbl.toLowerCase().includes(s))out.push({k:'tab:'+t.id,g:t.g,label:t.lbl,sub:'Go to',act:()=>setTab(t.id)});});
+    if(s){
+      pd.entities.filter(e=>(e.name||'').toLowerCase().includes(s)||(e.notes||'').toLowerCase().includes(s)||(e.tags||[]).some(t=>t.toLowerCase().includes(s))).slice(0,8)
+        .forEach(e=>{const T=ENTITY_TYPES[e.type];out.push({k:'ent:'+e.id,g:T.g,color:T.color,label:e.name||'(unnamed)',sub:T.label,act:()=>{setJump({type:'entity',id:e.id});setTab('codex');}});});
+      pd.plot.acts.forEach(a=>a.chapters.filter(ch=>(ch.title||'').toLowerCase().includes(s)||(ch.summary||'').toLowerCase().includes(s)).forEach(ch=>{
+        out.push({k:'ch:'+ch.id,g:'❧',label:ch.title,sub:a.title,act:()=>{setJump({type:'chapter',id:ch.id});setTab('write');}});}));
+      pd.braindump.filter(b=>(b.text||'').toLowerCase().includes(s)).slice(0,4)
+        .forEach(b=>out.push({k:'cap:'+b.id,g:'✎',label:(b.text||'').slice(0,64),sub:'Capture',act:()=>setTab('capture')}));
+      pd.foreshadow.filter(f=>((f.setup||'')+' '+(f.payoff||'')).toLowerCase().includes(s)).slice(0,4)
+        .forEach(f=>out.push({k:'th:'+f.id,g:'⌇',label:(f.setup||'(unwritten)').slice(0,64),sub:'Thread',act:()=>setTab('threads')}));
+    }
+    return out.slice(0,14);
+  },[q,pd]);
+  useEffect(()=>{setIx(0);},[q]);
+  const go=it=>{if(!it)return;it.act();close();};
+  return (
+    <div className="scrim" style={{alignItems:'flex-start',paddingTop:'13vh'}} onClick={close}>
+      <div className="palette" onClick={e=>e.stopPropagation()}>
+        <input ref={inputRef} value={q} placeholder="Search chapters, codex, captures… or jump to a tab"
+          onChange={e=>setQ(e.target.value)}
+          onKeyDown={e=>{
+            if(e.key==='ArrowDown'){e.preventDefault();setIx(i=>Math.min(items.length-1,i+1));}
+            else if(e.key==='ArrowUp'){e.preventDefault();setIx(i=>Math.max(0,i-1));}
+            else if(e.key==='Enter'){e.preventDefault();go(items[ix]);}
+            else if(e.key==='Escape'){close();}
+          }}/>
+        <div className="plist">
+          {items.length===0 && <div className="hint" style={{padding:'12px 14px'}}>Nothing matches.</div>}
+          {items.map((it,i)=>(
+            <div key={it.k} className={'pitem'+(i===ix?' on':'')} onMouseEnter={()=>setIx(i)} onClick={()=>go(it)}>
+              <span className="g" style={it.color?{color:it.color}:null}>{it.g}</span>
+              <span className="lbl">{it.label}</span>
+              <span className="sub">{it.sub}</span>
+            </div>
+          ))}
+        </div>
+        <div className="pfoot"><span>↑↓ navigate · ↵ open · esc close</span><span>⌘K</span></div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+/* PWA */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW failed',e));
+  });
+}
+</script>
+</body>
+</html>
