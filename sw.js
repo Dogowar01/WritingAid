@@ -1,12 +1,13 @@
 // Scriptorium service worker — offline-first for the app shell.
-const CACHE = 'scriptorium-v2';
+const CACHE = 'scriptorium-v76';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',
-  './favicon.png'
+  './favicon.png',
+  './fairy.jpg'
 ];
 
 self.addEventListener('install', e => {
