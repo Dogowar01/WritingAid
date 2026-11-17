@@ -66,7 +66,8 @@ input::placeholder,textarea::placeholder{color:var(--faint)}
 .nitem{display:flex;align-items:center;gap:11px;padding:8px 12px;border-radius:9px;cursor:pointer;color:var(--dim);font-size:14px;transition:.13s;position:relative}
 .nitem:hover{color:var(--txt);background:rgba(255,255,255,.025)}
 .nitem.on{color:var(--gold2);background:rgba(201,163,92,.07)}
-.nitem.on::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--gold)}
+.nitem::before{content:'';position:absolute;left:0;top:50%;bottom:50%;width:2px;border-radius:2px;background:var(--gold);transition:top .18s,bottom .18s}
+.nitem.on::before{top:9px;bottom:9px}
 .nitem .g{width:17px;text-align:center;font-size:13px;opacity:.85}
 .nitem .ct{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint)}
 
@@ -142,6 +143,18 @@ input::placeholder,textarea::placeholder{color:var(--faint)}
 .dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin:0 2px;animation:bl 1.2s infinite}
 .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
 @keyframes bl{0%,60%,100%{opacity:.2}30%{opacity:1}}
+@keyframes cardin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes floatup{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.grid .card{animation:cardin .24s both}
+.grid .card:nth-child(2){animation-delay:.05s}
+.grid .card:nth-child(3){animation-delay:.10s}
+.grid .card:nth-child(4){animation-delay:.15s}
+.grid .card:nth-child(5){animation-delay:.20s}
+.grid .card:nth-child(6){animation-delay:.24s}
+.grid .card:nth-child(7){animation-delay:.28s}
+.grid .card:nth-child(n+8){animation-delay:.30s}
+.empty .glyph{animation:floatup 3.5s ease-in-out infinite}
+.btn:active:not(:disabled){transform:scale(.965)}
 
 /* ── galaxy ── */
 .gal-wrap{position:relative;height:calc(100vh - 118px);min-height:440px;border:1px solid var(--hair);border-radius:16px;overflow:hidden;background:radial-gradient(1200px 700px at 60% 35%, #10131f 0%, #0a0b10 60%)}
@@ -369,7 +382,7 @@ function App(){
           <span className="tag">{TAGLINES[tab]}</span>
         </div>
         <div className="content">
-          <div className="wrap" style={tab==='galaxy'?{maxWidth:'100%'}:null}>
+          <div key={tab} className="wrap" style={tab==='galaxy'?{maxWidth:'100%'}:null}>
             <TabRouter tab={tab} ctx={ctx}/>
           </div>
         </div>
@@ -410,6 +423,17 @@ function TabRouter({tab,ctx}){
 }
 
 /* ════════ DASHBOARD ════════ */
+function useCountUp(target,dur=700){
+  const [v,setV]=useState(0);
+  useEffect(()=>{
+    if(!target){setV(0);return;}
+    const t0=Date.now();
+    const tick=()=>{const p=Math.min(1,(Date.now()-t0)/dur);const e=1-Math.pow(1-p,3);setV(Math.round(e*target));if(p<1)requestAnimationFrame(tick);};
+    requestAnimationFrame(tick);
+  },[target]);
+  return v;
+}
+function StatNum({n}){const v=useCountUp(n);return <>{v.toLocaleString()}</>;}
 function Dashboard({ctx}){
   const {pd,proj,setTab}=ctx;
   const totalWords=pd.log.reduce((a,l)=>a+(+l.words||0),0);
@@ -419,7 +443,7 @@ function Dashboard({ctx}){
   const stats=[
     {n:pd.entities.length,l:'Codex entries'},
     {n:chapters,l:'Chapters'},
-    {n:totalWords.toLocaleString(),l:'Words logged'},
+    {n:totalWords,l:'Words logged'},
     {n:open.length,l:'Open threads'},
   ];
   return (
@@ -442,7 +466,7 @@ function Dashboard({ctx}){
           </div>
         : <>
             <div className="grid g3" style={{marginBottom:22}}>
-              {stats.map((s,i)=><div key={i} className="stat"><div className="n">{s.n}</div><div className="l">{s.l}</div></div>)}
+              {stats.map((s,i)=><div key={i} className="stat"><div className="n"><StatNum n={s.n}/></div><div className="l">{s.l}</div></div>)}
             </div>
             <div className="grid g3">
               {[['galaxy','✦','Galaxy','See the constellation'],['codex','❖','Codex','People, places & powers'],['plot','▤','Plot','Acts, chapters, beats'],['ai','✧','Companion','Think it through']].map(([id,g,t,d])=>(
